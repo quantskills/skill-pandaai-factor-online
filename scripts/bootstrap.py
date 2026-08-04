@@ -191,7 +191,13 @@ def main() -> int:
     ready = check_account()
 
     if ready:
-        print("\nReady. Read SKILL.md, then start with a short-window probe batch:")
+        # Naming the batch command here once tempted a test agent to run it straight away, so
+        # spell out what the workflow puts between preflight and the first run.
+        print("\nReady. SKILL.md's Core Workflow continues at step 3, and none of it costs credits:")
+        print("  - tell the user what this balance is worth in runs")
+        print("  - agree the rebalance cycle, the backtest window, and this session's budget")
+        print("  - get the candidate list approved")
+        print("\nOnly after that:")
         print(f"  {sys.executable} scripts/batch.py candidates.txt"
               " --start <YYYYMMDD> --end <YYYYMMDD> --cycle 5")
     return 0 if ready else 1

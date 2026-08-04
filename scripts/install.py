@@ -127,6 +127,10 @@ def main() -> int:
         targets = [t for t in args.targets if t != "all"]
         if not targets:
             targets = [t for t in HOME_TARGETS if HOME_TARGETS[t][1]().is_dir()]
+            missing = [HOME_TARGETS[t][0] for t in HOME_TARGETS if t not in targets]
+            if missing:
+                print(f"Not installed on this machine, so skipped: {', '.join(missing)}.")
+                print("Install one later and re-run this to add it.\n")
             if not targets:
                 print("No supported tool directories found in your home directory.", file=sys.stderr)
                 print("Pass a target explicitly, or use: python3 scripts/install.py project [DIR]",
