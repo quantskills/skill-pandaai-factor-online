@@ -97,7 +97,8 @@ they have not:
 3. **No password.** Signing up with an SMS code does not create one. Set it at
    <https://www.pandaaiquant.com/personalcenter?id=1>.
 4. **Log in.** Recommend `pandaai-cli login` on its own, which prompts for both values and keeps the
-   password out of shell history; the flag form is `--phone 13800138000 --password yourpass`. Give a
+   password out of shell history; the flag form is `--phone 13800138000 --password yourpass`, with
+   that number an example to replace rather than a real one. Give a
    concrete example rather than `<phone>` placeholders, which users type literally, angle brackets
    and all. Ask the user to run it in their own terminal. Never invent or guess a phone number or
    password. If the user hands you the credentials and your tooling permits it, run it for them; if
