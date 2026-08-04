@@ -205,8 +205,11 @@ pandaai-cli --json factor_list --limit 1 --no-detail  # `total` is the factor co
 
 Each run costs roughly 2 credits, so the balance translates directly into how many experiments are
 affordable — divide by two and plan the batch sizes against that number. The factor count matters
-because names collide and old experiments pile up; give each batch a distinct name prefix so
-`factor_delete --pattern <prefix>` can clean it up later.
+because names collide and old experiments pile up; give each batch a distinct name prefix so it can
+be cleaned up later. Do not reach for `factor_delete --pattern` to do that: it returns HTTP 422 and
+deletes nothing, because the CLI collects ids across pages without de-duplicating them.
+`references/cli.md` carries a one-line replacement that collects unique ids and passes them
+positionally. Never delete anything the user did not create in this session without asking first.
 
 ## Step 4: Know what you can use
 
@@ -328,8 +331,10 @@ annual cost ≈ turnover × round_trip_cost × (252 / rebalance_days)
 ```
 
 The reported `turnoverRate` is the share of the decile replaced each rebalance, so with ten groups it
-saturates near 90%. At a 5-day cycle and a 0.3% round trip, 60% turnover costs about 9 points a year.
-`batch.py` applies this and ranks by the net figure.
+saturates near 90%. Use **0.3% as the default round-trip cost** — roughly commission plus stamp duty
+plus slippage for A-share retail execution — rather than asking the user to supply one; raise it if
+they trade small caps or size, and say which figure you used. At a 5-day cycle and 0.3%, 60%
+turnover costs about 9 points a year. `batch.py` applies this and ranks by the net figure.
 
 ## Research loop
 

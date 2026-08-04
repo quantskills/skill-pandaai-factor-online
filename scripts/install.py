@@ -117,8 +117,21 @@ def main() -> int:
                     help="claude, cursor, codex, gemini, all, or: project [DIR]")
     ap.add_argument("--copy", action="store_true", help="copy instead of symlinking")
     ap.add_argument("--force", action="store_true",
-                    help="replace a real directory already sitting at a target path")
+                    help="replace a real directory at a target path, or install from a temp one")
     args = ap.parse_args()
+
+    # The warning against cloning into a temp directory lives inside the repository, which you have
+    # to clone before you can read it. Refusing here is the only place it arrives in time.
+    if volatile(SRC) and not args.force:
+        print(f"This repository sits in {SRC}, which the system clears periodically.", file=sys.stderr)
+        print("Installs are symlinks, so they would break there and take the skill out of every",
+              file=sys.stderr)
+        print("tool at once, silently. Move the repository somewhere permanent and run this again:",
+              file=sys.stderr)
+        print(f"\n  mv {SRC} ~/{SRC.name}\n  cd ~/{SRC.name} && {sys.executable} scripts/install.py\n",
+              file=sys.stderr)
+        print("Pass --force to install from here anyway.", file=sys.stderr)
+        return 1
 
     if args.targets and args.targets[0] == "project":
         directory = Path(args.targets[1]).expanduser().resolve() if len(args.targets) > 1 else Path.cwd()
@@ -141,10 +154,6 @@ def main() -> int:
             print(f"unknown target: {', '.join(unknown)}", file=sys.stderr)
             return 1
         ok = all([install(t, args.copy, args.force) for t in targets])
-
-    if volatile(SRC):
-        print(f"\nwarning: this repository lives in {SRC}, which the system clears periodically.")
-        print("         Move it somewhere persistent and install again, or the links break silently.")
 
     print(f"\nNext: {sys.executable} {SRC / 'scripts' / 'bootstrap.py'}"
           "  (read-only, costs no compute credits)")
