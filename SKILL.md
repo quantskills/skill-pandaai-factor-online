@@ -1,8 +1,56 @@
 ---
 name: skill-pandaai-factor-online
-description: Set up pandaai-cli, log in to PandaAI, and mine, backtest, and iterate quantitative factors on the platform. Use when the user works on the PandaAI factor competition, installs or logs in to pandaai-cli, asks which fields or operators are available, writes or debugs factor formulas, runs factor analysis, or interprets IC / group-return / turnover results.
-license: MIT
+description: "Set up pandaai-cli, log in to PandaAI, and mine, backtest, and iterate quantitative factors on the platform. Use when an agent needs to onboard a user to the PandaAI factor competition, install or log in to pandaai-cli, look up available fields and operators, write or debug factor formulas, run and batch factor analyses, or interpret IC / group-return / turnover results on portable agent platforms such as Claude Code, Cursor, OpenClaw, or Codex-style skill systems."
+license: GPL-3.0-only
+quantSkills:
+  organization: https://github.com/quantskills
+  repository: quantskills/skill-pandaai-factor-online
+  repository_url: https://github.com/quantskills/skill-pandaai-factor-online
+  project_type: skill
+  collection: factor-analysis
+  license: GPL-3.0-only
+  category: factor
+  tags: [pandaai, factor-mining, pandaai-cli, a-shares, backtest, onboarding]
+  platforms: [claude-code, codex, cursor, openclaw]
+  language: zh-en
+  status: stable
+  validation_level: runnable
+  maintainer_type: community
+  requires: []
+  summary_zh: PandaAI 因子大赛上手与在线挖掘：环境体检、登录、字段算子速查、可续跑批量回测，以及按交易成本折算的复盘流程。
+  summary_en: "Onboarding and online factor mining for PandaAI: environment preflight, login, field and operator lookup, resumable batch backtests, and a cost-adjusted research loop."
 ---
+
+<!-- qsh-form：quantskillhub 运行页的定制表单声明 -->
+```json qsh-form
+{
+  "version": 1,
+  "task": {
+    "placeholder": "例如：帮我挖一批 5 日调仓、低换手的反转类因子，并按扣除成本后的多头超额排序",
+    "required": true
+  },
+  "fields": [
+    {
+      "key": "stage",
+      "type": "select",
+      "label": "阶段",
+      "options": [
+        { "value": "onboarding", "label": "上手：环境体检与登录" },
+        { "value": "probe", "label": "试探：短区间广撒网" },
+        { "value": "full", "label": "全区间：只跑幸存者" },
+        { "value": "falsify", "label": "证伪：变体与分年拆解" },
+        { "value": "oos", "label": "样本外：更早三年重建" },
+        { "value": "review", "label": "复盘：相关性与换手成本" }
+      ]
+    },
+    { "key": "start_date", "type": "date", "label": "回测开始日期" },
+    { "key": "end_date", "type": "date", "label": "回测结束日期（区间不得超过 3 年）" },
+    { "key": "cycle", "type": "number", "label": "调仓周期（1-10 个交易日）" },
+    { "key": "round_trip", "type": "number", "label": "双向交易成本（小数，如 0.003）" }
+  ],
+  "prompt_template": "任务：{{task}}\n阶段：{{stage}}\n回测区间：{{start_date}} 至 {{end_date}}（不得超过 3 年）\n调仓周期：{{cycle}} 日\n双向成本：{{round_trip}}\n附件：{{#attachments}}\n\n先运行 scripts/bootstrap.py 确认环境与算力，再按 SKILL.md 的流程执行；候选排序用扣除换手成本后的多头分组超额收益。"
+}
+```
 
 # PandaAI Factor Online
 
@@ -238,8 +286,20 @@ Execute these; they are not reference reading. Standard library only.
 | `scripts/batch.py` | Batch create / run / tabulate, resumable, ranked net of cost |
 | `scripts/analyze.py` | Local Spearman correlation and turnover from downloaded CSVs |
 
+## References
+
+| File | Contents |
+|---|---|
+| [references/cli.md](references/cli.md) | Commands, flags, result JSON shape, and known CLI bugs |
+| [references/fields.md](references/fields.md) | 348 data fields |
+| [references/operators.md](references/operators.md) | The official operator manual in full |
+| [references/pitfalls.md](references/pitfalls.md) | Traps that produce valid-but-wrong factors |
+| [references/playbook.md](references/playbook.md) | Credit budget, retrospective worksheet, falsification menu |
+| [references/source_boundary.md](references/source_boundary.md) | Data, credential, and research boundaries |
+
 ## Safety
 
+- Read [references/source_boundary.md](references/source_boundary.md) before a live run.
 - Prefer the interactive prompt over passing `--password`; if the tool balks, hand the command to the
   user rather than working around the refusal. Never commit or print the config file, token, or uid.
 - Every run costs credits: check `balance`, probe on short windows, batch the rest.

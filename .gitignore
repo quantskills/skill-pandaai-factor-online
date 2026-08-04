@@ -1,4 +1,10 @@
 __pycache__/
 *.pyc
-*.state.json
 .DS_Store
+# Git 卫生：原始导出与大数据不入库
+*.parquet
+*.state.json
+factor_data_*.csv
+prices/
+real_runs/
+sources/

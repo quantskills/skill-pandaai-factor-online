@@ -1,7 +1,7 @@
 ---
 name: skill-pandaai-factor-online-zh
 description: 搭建 pandaai-cli、登录 PandaAI，并在平台上挖掘、回测、迭代量化因子。当用户参加 PandaAI 因子大赛、安装或登录 pandaai-cli、询问有哪些字段与算子可用、编写与调试因子公式、运行因子分析、解读 IC / 分组收益 / 换手率结果时使用。
-license: MIT
+license: GPL-3.0-only
 ---
 
 # PandaAI 因子在线挖掘
@@ -217,8 +217,20 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 | `scripts/batch.py` | 批量创建 / 运行 / 汇总，可续跑，按扣除成本后的净值排序 |
 | `scripts/analyze.py` | 用下载的 CSV 本地算 Spearman 相关与换手率 |
 
+## 参考文件
+
+| 文件 | 内容 |
+|---|---|
+| [references/cli.md](references/cli.md) | 命令、参数、返回结构与已知 CLI bug |
+| [references/fields.md](references/fields.md) | 348 个数据字段 |
+| [references/operators.md](references/operators.md) | 官方算子手册全文 |
+| [references/pitfalls.md](references/pitfalls.md) | 会产出「能跑但跑错」因子的陷阱 |
+| [references/playbook.md](references/playbook.md) | 算力预算、复盘表、证伪菜单 |
+| [references/source_boundary.md](references/source_boundary.md) | 数据、凭据与研究边界 |
+
 ## 安全边界
 
+- 实盘取数前先读 [references/source_boundary.md](references/source_boundary.md)。
 - 优先用交互式输入而不是 `--password`；工具拒绝处理时，把命令交给用户执行，不要绕过这个拒绝。
   不要提交或打印配置文件、token、uid。
 - 每次运行都扣算力：先查 `balance`，先用短区间试探，其余批量跑。
