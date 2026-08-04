@@ -21,7 +21,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-NAME = "skill-pandaai-factor-online"
+NAME = "pandaai-factor-online"
+LEGACY = "skill-pandaai-factor-online"  # the repository name, used as the skill name before 2026-08
 SRC = Path(__file__).resolve().parent.parent
 IGNORE = shutil.ignore_patterns(".git", "__pycache__", "*.pyc")
 
@@ -80,6 +81,16 @@ def place(dest: Path, copy: bool, force: bool) -> bool:
     return True
 
 
+def retire_legacy(skills: Path) -> None:
+    """Earlier versions installed under the repository name, which would now load twice."""
+    old = skills / LEGACY
+    if old.is_symlink() and old.resolve() == SRC:
+        old.unlink()
+        print(f"  removed {old} (renamed to {NAME})")
+    elif old.is_dir():
+        print(f"  note: {old} is an older copy of this skill; remove it so it does not load twice")
+
+
 def point(file: Path) -> bool:
     """Append a pointer to an instruction file, once."""
     file.parent.mkdir(parents=True, exist_ok=True)
@@ -109,13 +120,17 @@ def install(target: str, copy: bool, force: bool) -> bool:
         return point(base / "AGENTS.md")
     if target == "gemini":
         return point(base / "GEMINI.md")
-    return place(base / "skills" / NAME, copy, force)
+    ok = place(base / "skills" / NAME, copy, force)
+    retire_legacy(base / "skills")
+    return ok
 
 
 def install_project(directory: Path, copy: bool, force: bool) -> bool:
     print(f"Project {directory}:")
     ok = place(directory / ".cursor" / "skills" / NAME, copy, force)
     ok &= place(directory / ".claude" / "skills" / NAME, copy, force)
+    for tool in (".cursor", ".claude"):
+        retire_legacy(directory / tool / "skills")
     # Codex, Kimi Code, opencode, Aider and others read AGENTS.md from the project root.
     ok &= point(directory / "AGENTS.md")
     return ok

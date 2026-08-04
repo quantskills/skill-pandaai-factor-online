@@ -91,8 +91,8 @@ Agent 从已登录状态继续，全程不接触凭据。
 
 | 工具 | 命令 | 安装位置 |
 | --- | --- | --- |
-| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/skill-pandaai-factor-online` |
-| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
+| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/pandaai-factor-online` |
+| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/pandaai-factor-online` |
 | Codex | `python3 scripts/install.py codex` | 在 `~/.codex/AGENTS.md` 追加指引 |
 | Gemini CLI | `python3 scripts/install.py gemini` | 在 `~/.gemini/GEMINI.md` 追加指引 |
 | 单个项目 | `python3 scripts/install.py project [目录]` | 项目内的技能目录 + `AGENTS.md` 指引 |

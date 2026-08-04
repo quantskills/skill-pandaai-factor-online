@@ -1,7 +1,7 @@
 ---
-name: skill-pandaai-factor-online-zh
+name: pandaai-factor-online-zh
 description: 搭建 pandaai-cli、登录 PandaAI，并在平台上挖掘、回测、迭代量化因子。当用户参加 PandaAI 因子大赛、安装或登录 pandaai-cli、询问有哪些字段与算子可用、编写与调试因子公式、运行因子分析、解读 IC / 分组收益 / 换手率结果时使用。
-license: GPL-3.0-only
+license: GPL-3.0
 ---
 
 # PandaAI 因子在线挖掘
@@ -27,7 +27,7 @@ python3 scripts/bootstrap.py
 这里的脚本在 Windows、macOS、Linux 上都能跑；Windows 上解释器是 `python`，不是 `python3`。
 
 本文里的所有路径都相对于**存放本文件的那个目录**——通常是
-`~/.claude/skills/skill-pandaai-factor-online`、`~/.cursor/skills/...`，或者压缩包解压到的位置。
+`~/.claude/skills/pandaai-factor-online`、`~/.cursor/skills/...`，或者压缩包解压到的位置。
 Agent 很少正好从那里启动，所以请以该目录为基准解析这些路径，而不是当前工作目录。
 产出的文件则相反：`candidates.txt` 和它的断点文件要放在用户自己的工作目录里，
 不要放进技能目录，那里重装一次就被覆盖了。

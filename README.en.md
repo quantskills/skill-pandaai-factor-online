@@ -109,8 +109,8 @@ ever touching the credentials.
 
 | Tool | Command | Where it lands |
 | --- | --- | --- |
-| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/skill-pandaai-factor-online` |
-| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
+| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/pandaai-factor-online` |
+| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/pandaai-factor-online` |
 | Codex | `python3 scripts/install.py codex` | pointer appended to `~/.codex/AGENTS.md` |
 | Gemini CLI | `python3 scripts/install.py gemini` | pointer appended to `~/.gemini/GEMINI.md` |
 | One project | `python3 scripts/install.py project [DIR]` | project-local skill dirs plus an `AGENTS.md` pointer |

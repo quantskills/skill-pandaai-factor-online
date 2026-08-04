@@ -1,14 +1,14 @@
 ---
-name: skill-pandaai-factor-online
+name: pandaai-factor-online
 description: "Set up pandaai-cli, log in to PandaAI, and mine, backtest, and iterate quantitative factors on the platform. Use when an agent needs to onboard a user to the PandaAI factor competition, install or log in to pandaai-cli, look up available fields and operators, write or debug factor formulas, run and batch factor analyses, or interpret IC / group-return / turnover results on portable agent platforms such as Claude Code, Cursor, OpenClaw, or Codex-style skill systems."
-license: GPL-3.0-only
+license: GPL-3.0
 quantSkills:
   organization: https://github.com/quantskills
   repository: quantskills/skill-pandaai-factor-online
   repository_url: https://github.com/quantskills/skill-pandaai-factor-online
   project_type: skill
   collection: factor-analysis
-  license: GPL-3.0-only
+  license: GPL-3.0
   category: factor
   tags: [pandaai, factor-mining, pandaai-cli, a-shares, backtest, onboarding]
   platforms: [claude-code, codex, cursor, openclaw]
@@ -78,7 +78,7 @@ exact next command whenever a step is unsatisfied. Every script here runs on Win
 Linux; on Windows the interpreter is `python`, not `python3`.
 
 Every path in this document is relative to the directory holding this file — typically
-`~/.claude/skills/skill-pandaai-factor-online`, `~/.cursor/skills/...`, or wherever the archive was
+`~/.claude/skills/pandaai-factor-online`, `~/.cursor/skills/...`, or wherever the archive was
 unpacked. An agent is rarely started there, so resolve these paths against that directory rather
 than the current working directory. The files you produce go the other way: keep `candidates.txt`
 and its state file in the user's own working directory, not inside the skill, where reinstalling
