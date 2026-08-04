@@ -217,10 +217,10 @@ one cost the same. Divide the balance by five and plan the batch sizes against t
 balance also settles a minute or two behind, so a reading taken the instant a run returns
 undercounts it. The factor count matters
 because names collide and old experiments pile up; give each batch a distinct name prefix so it can
-be cleaned up later. Do not reach for `factor_delete --pattern` to do that: it returns HTTP 422 and
-deletes nothing, because the CLI collects ids across pages without de-duplicating them.
-`references/cli.md` carries a one-line replacement that collects unique ids and passes them
-positionally. Never delete anything the user did not create in this session without asking first.
+be cleaned up later. Do not reach for `factor_delete --pattern` to do that: it deletes nothing and
+misreports why — HTTP 422 on 0.1.1, `LOGIN_REQUIRED` on 0.1.3 in a session that is plainly logged
+in. Deleting by id works. `references/cli.md` carries a one-line replacement that collects unique
+ids and passes them positionally. Never delete anything the user did not create in this session without asking first.
 
 ## Step 4: Know what you can use
 

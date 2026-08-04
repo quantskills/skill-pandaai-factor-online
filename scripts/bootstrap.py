@@ -77,10 +77,27 @@ def check_cli() -> str | None:
         try:
             shebang = Path(path).read_text(encoding="utf-8", errors="ignore").splitlines()[0]
             if shebang.startswith("#!"):
-                say(OK, f"running under {shebang[2:].strip()}")
+                interpreter = shebang[2:].strip()
+                say(OK, f"running under {interpreter}")
+                report_cli_version(interpreter)
         except (OSError, IndexError):
             pass
     return path
+
+
+def report_cli_version(interpreter: str) -> None:
+    """The CLI has no --version, and its flags move between patch releases: 0.1.2 renamed
+    factor_list --offset to --page. Naming the version tells you whether references/cli.md
+    still describes the CLI you have."""
+    probe = "import importlib.metadata as m; print(m.version('pandaai-cli'))"
+    try:
+        proc = subprocess.run([interpreter, "-c", probe], capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return
+    version = proc.stdout.strip()
+    if version:
+        say(OK, f"pandaai-cli {version} (references/cli.md is written against 0.1.3;"
+                " `uv tool upgrade pandaai-cli` if yours is older)")
 
 
 def check_config(path: Path, country_code: str) -> bool:

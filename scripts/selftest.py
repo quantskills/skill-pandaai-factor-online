@@ -29,6 +29,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import analyze  # noqa: E402
 import batch  # noqa: E402
+import bootstrap  # noqa: E402
 
 
 def run_payload(long_excess="10.00%", turnover="60.00%", short_excess="-5.00%",
@@ -313,6 +314,14 @@ class Environment(unittest.TestCase):
                 if called in text_io and not any(k.arg == "encoding" for k in node.keywords):
                     offenders.append(f"{path.name}:{node.lineno}: {called}()")
         self.assertEqual(offenders, [], "\n".join(["missing encoding='utf-8':"] + offenders))
+
+    def test_cli_version_probe_stays_quiet_when_it_cannot_run(self):
+        # It runs an interpreter parsed out of a shebang, which may be anything or gone.
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            bootstrap.report_cli_version("/nonexistent/python")
+            bootstrap.report_cli_version(sys.executable)  # real, but without pandaai-cli installed
+        self.assertNotIn("fail", out.getvalue())
 
     def test_references_load_under_an_ascii_locale(self):
         env = {**os.environ, "LC_ALL": "C", "LANG": "C",

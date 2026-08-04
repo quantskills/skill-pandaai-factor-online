@@ -1,8 +1,12 @@
 # pandaai-cli Reference / 命令参考
 
-Verified against pandaai-cli 0.1.1. `pandaai-cli` is a third-party package; verify against the
-installed version before relying on any flag.
-对照 pandaai-cli 0.1.1 核对。`pandaai-cli` 为第三方包，依赖任何参数前请对照本机版本确认。
+Verified against pandaai-cli 0.1.3 (2026-08-04). `pandaai-cli` is a third-party package that changes
+flags between patch releases — 0.1.2 renamed `factor_list --offset` to `--page` — so check your own
+version before relying on any flag, and note that `uv tool install` pins the version it resolved on
+the day you installed it. `uv tool upgrade pandaai-cli` moves it.
+对照 pandaai-cli 0.1.3 核对（2026-08-04）。`pandaai-cli` 是第三方包，补丁版本之间会改参数——
+0.1.2 把 `factor_list --offset` 改成了 `--page`——所以依赖任何参数前先确认本机版本。
+另外 `uv tool install` 会钉死安装当天解析到的版本，要升级用 `uv tool upgrade pandaai-cli`。
 
 ## Install / 安装
 
@@ -123,20 +127,20 @@ pandaai-cli factor_info <factor_id>
 pandaai-cli factor_update <factor_id> [--name | --formula | --code | --file |
                                        --start-date | --end-date |
                                        --adjustment-cycle | --factor-direction]
-pandaai-cli --json factor_list [--limit N] [--offset N] [--no-detail]
+pandaai-cli --json factor_list [--limit N] [--page N] [--no-detail]
 pandaai-cli factor_delete <factor_id>... | --pattern PREFIX [--yes]
 pandaai-cli --json balance
 ```
 
-`factor_list` returns at most 100 per page and includes a one-line analysis summary unless
-`--no-detail` is passed. `factor_delete --pattern` matches on name prefix, which makes throwaway
-probes easy to clean up if you name them with a common prefix.
-`factor_list` 每页最多 100 条，除非加 `--no-detail`，否则附带一行分析摘要。`factor_delete --pattern`
-按名称前缀匹配，所以试探性因子起个统一前缀便于批量清理。
+`factor_list` returns at most 100 per page, paginates with `--page` counting from 1, and includes a
+one-line analysis summary unless `--no-detail` is passed. `factor_delete` takes ids positionally and
+works; its `--pattern` prefix matching does not (see below), so collect the ids yourself.
+`factor_list` 每页最多 100 条，用 `--page` 翻页（从 1 开始），除非加 `--no-detail`，否则附带一行分析摘要。
+`factor_delete` 按位置参数传 id 是好用的；它的 `--pattern` 前缀匹配不能用（见下），自己收集 id。
 
 ## Known issues / 已知问题
 
-**Login fails on a clean machine.** `cli.py` calls `load_config()` before dispatching subcommands,
+**Login fails on a clean machine.** Still true on 0.1.3. `cli.py` calls `load_config()` before dispatching subcommands,
 and `load_config()` prints `CONFIG_ERROR: 配置文件不存在` and exits when the file is missing. Since
 `login` is the command that creates the file, it can never run first. Seed the file manually (or
 run `scripts/bootstrap.py`) with `gateway_url` and `country_code`, then log in.
@@ -144,24 +148,22 @@ run `scripts/bootstrap.py`) with `gateway_url` and `country_code`, then log in.
 `CONFIG_ERROR: 配置文件不存在` 并退出。而 `login` 恰恰是创建该文件的命令，于是永远排不到它执行。
 先手工写入 `gateway_url` 与 `country_code`（或运行 `scripts/bootstrap.py`），再登录。
 
-**`--json` silently disables `--download`.** The CSV write happens only on the human-readable code
-path, so `factor_result <id> --download --json` prints JSON and writes nothing. Drop `--json` when
-you want files.
-**`--json` 会静默关闭 `--download`。** 写 CSV 只发生在人类可读的分支上，所以
-`factor_result <id> --download --json` 只打印 JSON，不落盘。要文件就别加 `--json`。
+**`--json` silently disables `--download`.** Still true on 0.1.3. The CSV write happens only on the
+human-readable code path, so `factor_result <id> --download --json` prints JSON and writes nothing.
+Drop `--json` when you want files — and expect a large one: a three-year run over 沪深全A came to
+139 MB, which is why `scripts/analyze.py` samples dates instead of loading everything.
+**`--json` 会静默关闭 `--download`。** 0.1.3 上依然如此。写 CSV 只发生在人类可读的分支上，所以
+`factor_result <id> --download --json` 只打印 JSON，不落盘。要文件就别加 `--json`——
+并且文件很大：三年沪深全A 实测 139 MB，这也是 `scripts/analyze.py` 抽样日期而不是整份读入的原因。
 
-**`factor_update` drops parameters when several change at once.** Updating, say, `--name` and
-`--factor-direction` in one call can apply only one of them. Issue one change per call and confirm
-with `factor_info` before spending a run.
-**`factor_update` 一次改多个参数会丢。** 例如同时改 `--name` 和 `--factor-direction`，可能只生效一个。
-一次只改一项，花算力运行前用 `factor_info` 确认。
-
-**`factor_delete --pattern` can fail with HTTP 422.** The CLI collects matching ids across pages
-without de-duplicating, and the API rejects a list containing repeats
-(`工作流ID列表中不能有重复的ID`), deleting nothing. Collect the ids yourself from `factor_list` and
-pass unique ones positionally:
-**`factor_delete --pattern` 可能报 HTTP 422。** CLI 跨页收集匹配 id 时没有去重，而接口拒绝含重复项的列表
-（`工作流ID列表中不能有重复的ID`），结果一个都删不掉。自己从 `factor_list` 取 id 去重后按位置参数传：
+**`factor_delete --pattern` does not work, and lies about why.** On 0.1.1 it returned HTTP 422
+because the CLI collected ids across pages without de-duplicating them
+(`工作流ID列表中不能有重复的ID`); on 0.1.3 it returns `LOGIN_REQUIRED` on a session where every other
+command authenticates fine. Deleting by id works, though `--json` makes it print nothing at all.
+Collect the ids yourself from `factor_list` and pass them positionally:
+**`factor_delete --pattern` 不能用，而且给的理由是假的。** 0.1.1 上它报 HTTP 422，因为 CLI 跨页收集 id
+时没去重（`工作流ID列表中不能有重复的ID`）；0.1.3 上它报 `LOGIN_REQUIRED`，而同一会话里其他命令的
+鉴权都正常。按 id 删除是好用的，只是加了 `--json` 就什么都不打印。自己从 `factor_list` 取 id 按位置传：
 
 One line, no pipes, so it also runs in PowerShell. Change the `probe-` prefix to select your batch.
 一行，不用管道，PowerShell 里也能跑。把 `probe-` 换成你要删的那批因子的前缀。
@@ -169,6 +171,13 @@ One line, no pipes, so it also runs in PowerShell. Change the `probe-` prefix to
 ```bash
 python3 -c "import json,subprocess;out=subprocess.run(['pandaai-cli','--json','factor_list','--limit','100','--no-detail'],capture_output=True,text=True).stdout;ids=sorted({f['_id'] for f in json.loads(out)['factors'] if f['name'].startswith('probe-')});subprocess.run(['pandaai-cli','factor_delete','--yes',*ids])"
 ```
+
+**`factor_update` dropped parameters before 0.1.3.** On 0.1.1, changing `--name` and
+`--factor-direction` in one call applied only one of them. Fixed as of 0.1.3, where both take
+effect. On an older CLI, issue one change per call and confirm with `factor_info` before spending a
+run.
+**`factor_update` 在 0.1.3 之前会丢参数。** 0.1.1 上同时改 `--name` 和 `--factor-direction` 只有一个生效。
+0.1.3 已修复，两个都会生效。CLI 版本较旧时，一次只改一项，花算力运行前用 `factor_info` 确认。
 
 **Some formulas fail to parse for non-obvious reasons.** A trailing `-1` on a division has been seen
 to fail (`CLOSE/MA(CLOSE,20)-1`) where the equivalent canonical operator works (`BIAS(CLOSE,20)`).
