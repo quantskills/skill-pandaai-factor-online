@@ -85,10 +85,26 @@ because names collide and old experiments pile up; give each batch a distinct na
 consulted before writing any formula, since a wrong name costs a run to discover:
 
 - [references/fields.md](references/fields.md) — 8 price/volume fields plus 340 fundamentals
-- [references/operators.md](references/operators.md) — operator signatures grouped by category
+- [references/operators.md](references/operators.md) — the official operator manual in full:
+  signatures, semantics, and a worked example per function, in eleven categories
 
-Formulas may span several lines with intermediate variables; the platform takes the last line as the
-factor value. Field names are case-insensitive.
+Two authoring modes. **Formula mode** (`--formula`) may span several lines with intermediate
+variables; the platform takes the last line as the factor value, and field names are
+case-insensitive. **Python mode** (`--code` or `--file`) subclasses `Factor` and implements
+`calculate(self, factors)`, returning a Series named `value` indexed by `[symbol, date]`, with the
+same operators available:
+
+```python
+class ComplexFactor(Factor):
+    def calculate(self, factors):
+        close, volume = factors['close'], factors['volume']
+        momentum = RANK((close / DELAY(close, 20)) - 1)
+        vol_signal = IF(STDDEV(close / DELAY(close, 1) - 1, 20) > 0.02, 1, -1)
+        return momentum * vol_signal
+```
+
+Formula mode is faster to iterate and enough for most candidates; Python mode is easier to maintain
+once a factor needs several intermediate steps.
 
 What the CLI can actually do:
 

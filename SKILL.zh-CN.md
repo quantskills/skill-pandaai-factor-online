@@ -78,9 +78,23 @@ pandaai-cli --json factor_list --limit 1 --no-detail  # 返回体里的 total �
 因为名字写错要花一次运行才能发现：
 
 - [references/fields.md](references/fields.md)：8 个量价字段 + 340 个基本面字段
-- [references/operators.md](references/operators.md)：按类别分组的算子签名
+- [references/operators.md](references/operators.md)：官方算子手册全文，十一个类别，
+  每个函数含签名、说明、用法与示例
 
-公式支持多行与中间变量，系统取最后一行作为因子值。字段名大小写均可。
+两种写法。**公式方式**（`--formula`）支持多行与中间变量，系统取最后一行作为因子值，字段名大小写均可。
+**Python 方式**（`--code` 或 `--file`）继承 `Factor` 并实现 `calculate(self, factors)`，
+返回值是列名为 `value`、以 `[symbol, date]` 为多级索引的 Series，同一套算子照样可用：
+
+```python
+class ComplexFactor(Factor):
+    def calculate(self, factors):
+        close, volume = factors['close'], factors['volume']
+        momentum = RANK((close / DELAY(close, 20)) - 1)
+        vol_signal = IF(STDDEV(close / DELAY(close, 1) - 1, 20) > 0.02, 1, -1)
+        return momentum * vol_signal
+```
+
+公式方式迭代更快，多数候选够用；因子需要好几步中间计算时，Python 方式更好维护。
 
 CLI 实际能做的事：
 

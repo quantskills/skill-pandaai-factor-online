@@ -120,12 +120,14 @@ def check_account() -> bool:
 
 
 def check_references() -> None:
-    for name, label in (("fields.md", "fields"), ("operators.md", "operators")):
+    # fields.md lists names in backticks; operators.md keeps the official `NAME(args)` tables.
+    for name, label, row in (("fields.md", "fields", r"^\| `"),
+                             ("operators.md", "operators", r"^\| [A-Z][A-Z_0-9]*\(")):
         path = REFS / name
         if not path.exists():
             say(WARN, f"{path} missing")
             continue
-        count = len(re.findall(r"^\| `", path.read_text(), re.M))
+        count = len(re.findall(row, path.read_text(), re.M))
         say(OK, f"{count} {label} available in references/{name}")
 
 

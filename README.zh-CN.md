@@ -61,7 +61,7 @@ AGENTS.md             面向 AGENTS.md 类 Agent 的工作约定
 references/
   cli.md              命令、参数与已知 CLI bug
   fields.md           348 个数据字段
-  operators.md        137 个算子签名
+  operators.md        137 个算子：官方手册全文，含用法与示例
   pitfalls.md         会产出「能跑但跑错」因子的陷阱
   playbook.md         算力预算、复盘表、证伪菜单
 scripts/

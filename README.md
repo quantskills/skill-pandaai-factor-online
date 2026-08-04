@@ -65,7 +65,7 @@ AGENTS.md             Working agreement for AGENTS.md-based agents
 references/
   cli.md              Commands, flags, and the known CLI bugs
   fields.md           348 data fields
-  operators.md        137 operator signatures
+  operators.md        137 operators: official manual in full, with usage notes
   pitfalls.md         Traps that produce valid-but-wrong factors
   playbook.md         Credit budget, retrospective worksheet, falsification menu
 scripts/
