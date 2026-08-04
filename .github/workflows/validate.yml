@@ -1,4 +1,4 @@
-name: Validate qsh-form
+name: Validate
 
 on:
   push:
@@ -14,3 +14,13 @@ jobs:
           node-version: 20
       - name: 校验 qsh-form
         run: node scripts/validate-qsh-form.mjs SKILL.md
+      # 3.9 is not for running the skill; it is the version the preflight has to survive
+      # long enough to say "install 3.10".
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 脚本自检
+        run: python scripts/selftest.py

@@ -158,6 +158,7 @@ skill-pandaai-factor-online/
     ├── bootstrap.py          Preflight: environment, config, login, balance, factor count
     ├── batch.py              Batch create / run / tabulate, resumable, ranked net of cost
     ├── analyze.py            Local correlation and turnover from downloaded CSVs
+    ├── selftest.py           Offline self-test of the scripts (no network, no credits)
     └── validate-qsh-form.mjs qsh-form self-check
 ```
 
@@ -197,3 +198,8 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 The ` ```json qsh-form ` block in SKILL.md declares this skill's custom run form on quantskillhub:
 stage, backtest window, rebalance cycle, and round-trip cost are assembled straight into the prompt.
 CI validates it on push; locally, run `node scripts/validate-qsh-form.mjs SKILL.md`.
+
+## Self-test
+
+Run it after changing anything under `scripts/`. No network, no compute credits:
+`python3 scripts/selftest.py`.

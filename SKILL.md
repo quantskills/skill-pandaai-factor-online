@@ -140,7 +140,9 @@ temporary path:
 - `candidates.txt` — one line per candidate, `name ~ formula ~ direction`, including the ones you
   expect to fail, since the count is the multiple-testing denominator
 - `candidates.txt.state.json` — written by `batch.py`: factor id, run id, and metrics per candidate,
-  so an interrupted batch resumes without re-spending credits
+  so an interrupted batch resumes without re-spending credits. Each entry is fingerprinted with the
+  formula, direction, window and cycle that produced it, so an edited candidate stops the batch
+  instead of resuming as though nothing had changed
 - A ranked table with, per candidate: Rank_IC, p-value, monotonicity, long-side excess return,
   turnover, the implied annual cost, and the net figure the ranking is based on
 - A retrospective entry per surviving candidate: mechanism in one sentence, highest correlation
@@ -314,6 +316,19 @@ Each line of the input file is `name ~ formula ~ direction`:
 60d high distance ~ CLOSE/TS_MAX(HIGH,60) ~ 0
 ```
 
+Duplicate names, look-ahead operators and `MEAN(X, N)` are rejected while parsing, before anything
+reaches the platform. Three flags guard the credits:
+
+| Flag | Effect |
+|---|---|
+| `--max-runs N` | Stops after N runs whatever remains in the file; re-run to continue |
+| `--retry-failed` | Failures are terminal by default, since a retry costs the same as the first run |
+| `--hypotheses N` | The study-wide candidate count for the multiple-testing threshold |
+
+Re-running the same file with a different window is how out-of-sample validation is set up, so the
+batch refuses to start when saved results no longer match the candidates. Copy the candidates into a
+second file for the earlier window rather than editing the first.
+
 ## Reading results
 
 The platform headlines a long-short annualized return, which assumes a short leg A-share
@@ -323,7 +338,8 @@ participants cannot build. Judge candidates on the long side instead:
    long side when `--factor-direction 1` and 分组1 when it is `0`. Reading the wrong end inverts
    every conclusion.
 2. **Monotonicity** across the ten groups — a factor that only fires in the extreme group is fragile.
-3. **p-value** of the IC t-statistic, subject to the multiple-testing caveat below.
+3. **p-value** of the IC_mean t-statistic — the `IC_p` column; Rank_IC has no p-value of its own —
+   subject to the multiple-testing caveat below.
 4. **Turnover**, converted into a cost rather than quoted as a rate:
 
 ```
@@ -349,7 +365,9 @@ with one you already hold is not new.
 market cap, split by calendar year, vary the lookback by ±50%, change the rebalance cycle. Record
 falsified ideas so they stop coming back.
 
-**Cost-check.** Apply the turnover haircut and re-rank. Some leaders do not survive it.
+**Cost-check.** Apply the turnover haircut and re-rank. Some leaders do not survive it. Measuring
+turnover locally takes the direction too — `scripts/analyze.py turnover --direction 0` prices the
+bottom decile, which is the side a direction-0 factor actually holds.
 
 **Decide.** Escalate, orthogonalize, or abandon — one of the three, written down. Without an explicit
 abandon step, dead directions get re-explored a week later.
@@ -360,7 +378,8 @@ Worksheet and falsification menu: [references/playbook.md](references/playbook.m
 
 - **Multiple testing.** Testing N factors on one dataset makes small p-values inevitable. At ~100
   candidates a nominal p < 0.05 means nothing; use p < 0.05/N as a rough filter. `batch.py` prints
-  the threshold for the batch size.
+  the threshold, but N defaults to the current file — pass `--hypotheses` with the running total
+  once a study spans several files, or the threshold resets with every batch.
 - **Hold out data.** Under the 3-year cap, out-of-sample means re-creating survivors as new factor
   objects over an earlier three-year range and confirming the sign and magnitude hold.
 - **Keep the failures.** They are the denominator of the correction.
@@ -376,6 +395,7 @@ Execute these; they are not reference reading. Standard library only.
 | `scripts/bootstrap.py` | Preflight: environment, config, login state, balance, factor count |
 | `scripts/batch.py` | Batch create / run / tabulate, resumable, ranked net of cost |
 | `scripts/analyze.py` | Local Spearman correlation and turnover from downloaded CSVs |
+| `scripts/selftest.py` | Offline self-test of the three above; run it after editing any of them |
 
 ## References
 

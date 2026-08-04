@@ -26,6 +26,20 @@ SRC = Path(__file__).resolve().parent.parent
 IGNORE = shutil.ignore_patterns(".git", "__pycache__", "*.pyc")
 
 
+def check_python() -> bool:
+    """The skill files install fine under any Python; the scripts they point at do not."""
+    if sys.version_info >= (3, 10):
+        return True
+    version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    print(f"This is Python {version}. pandaai-cli and the scripts here need 3.10 or newer,")
+    print("so install a newer one before running the preflight:\n")
+    print("  uv python install 3.12" if shutil.which("uv") else
+          "  https://www.python.org/downloads/   (or: brew install python /"
+          " winget install Python.Python.3.12)")
+    print()
+    return False
+
+
 def volatile(path: Path) -> bool:
     """Symlinks out of a temp directory break silently when the system clears it."""
     temp = Path(tempfile.gettempdir()).resolve()
@@ -119,6 +133,7 @@ def main() -> int:
     ap.add_argument("--force", action="store_true",
                     help="replace a real directory at a target path, or install from a temp one")
     args = ap.parse_args()
+    usable_python = check_python()
 
     # The warning against cloning into a temp directory lives inside the repository, which you have
     # to clone before you can read it. Refusing here is the only place it arrives in time.
@@ -155,8 +170,11 @@ def main() -> int:
             return 1
         ok = all([install(t, args.copy, args.force) for t in targets])
 
-    print(f"\nNext: {sys.executable} {SRC / 'scripts' / 'bootstrap.py'}"
-          "  (read-only, costs no compute credits)")
+    if usable_python:
+        print(f"\nNext: {sys.executable} {SRC / 'scripts' / 'bootstrap.py'}"
+              "  (costs no compute credits; creates ~/.pandaai/config.yaml if missing)")
+    else:
+        print("\nNext: install Python 3.10+ as above, then run scripts/bootstrap.py with it.")
     return 0 if ok else 1
 
 

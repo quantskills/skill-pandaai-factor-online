@@ -12,6 +12,9 @@ Run this first, and again whenever something stops working. It checks in order:
 Prints the exact next command whenever a step is not satisfied. Never prints credentials.
 """
 
+# Deferred annotations, so this file still parses on the Python 3.9 it is meant to complain about.
+from __future__ import annotations
+
 import argparse
 import json
 import re
@@ -72,7 +75,7 @@ def check_cli() -> str | None:
     # actually run the CLI. On Windows it is a binary launcher with nothing to read.
     if not WINDOWS:
         try:
-            shebang = Path(path).read_text(errors="ignore").splitlines()[0]
+            shebang = Path(path).read_text(encoding="utf-8", errors="ignore").splitlines()[0]
             if shebang.startswith("#!"):
                 say(OK, f"running under {shebang[2:].strip()}")
         except (OSError, IndexError):
@@ -84,13 +87,14 @@ def check_config(path: Path, country_code: str) -> bool:
     """Seed a minimal config if absent, because the CLI exits before login can create it."""
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(f"gateway_url: {GATEWAY_URL}\ncountry_code: '{country_code}'\n")
+        path.write_text(f"gateway_url: {GATEWAY_URL}\ncountry_code: '{country_code}'\n",
+                        encoding="utf-8")
         path.chmod(0o600)
         say(OK, f"created {path} (pandaai-cli cannot create it itself)")
         return False
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     if "gateway_url" not in text:
-        path.write_text(f"gateway_url: {GATEWAY_URL}\n" + text)
+        path.write_text(f"gateway_url: {GATEWAY_URL}\n" + text, encoding="utf-8")
         say(OK, f"added gateway_url to {path}")
     else:
         say(OK, f"config present: {path}")
@@ -159,12 +163,13 @@ def check_references() -> None:
         if not path.exists():
             say(WARN, f"{path} missing")
             continue
-        count = len(re.findall(row, path.read_text(), re.M))
+        count = len(re.findall(row, path.read_text(encoding="utf-8"), re.M))
         say(OK, f"{count} {label} available in references/{name}")
 
     catalog = sorted(REFS.glob("fields-*.md"))
     if catalog:
-        entries = sum(len(re.findall(r"^\| `", p.read_text(), re.M)) for p in catalog)
+        entries = sum(len(re.findall(r"^\| `", p.read_text(encoding="utf-8"), re.M))
+                      for p in catalog)
         say(OK, f"{entries} backtest catalog entries across {len(catalog)} tables in references/fields-*.md")
 
 

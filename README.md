@@ -142,6 +142,7 @@ skill-pandaai-factor-online/
     ├── bootstrap.py          体检：环境、配置、登录、算力、因子数量
     ├── batch.py              批量创建 / 运行 / 汇总，可续跑，按成本折算排序
     ├── analyze.py            用下载的 CSV 本地算相关性与换手率
+    ├── selftest.py           脚本离线自检（不联网、不扣算力）
     └── validate-qsh-form.mjs qsh-form 自检
 ```
 
@@ -180,3 +181,7 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 SKILL.md 中的 ` ```json qsh-form ` 围栏块声明该技能在 quantskillhub 运行页的定制表单：
 阶段选择、回测区间、调仓周期与双向成本会直接组装进提示。推送时 CI 自动校验；
 本地自检：`node scripts/validate-qsh-form.mjs SKILL.md`。
+
+## 本地自检
+
+改过 `scripts/` 下任何脚本之后跑一遍，不联网也不扣算力：`python3 scripts/selftest.py`。
