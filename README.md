@@ -50,11 +50,30 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 到[个人中心](https://www.pandaaiquant.com/personalcenter?id=1)设置一个。
 如果你的 AI 工具拒绝执行带密码的命令，就自己在终端里跑一遍；token 会存进配置文件，Agent 从那里继续。
 
-触发示例 prompt：
+### 懒人版：一句话开始
+
+不想手动装的话，把下面这段整个贴给你的 AI 工具（Claude Code、Cursor、Codex、Kimi Code 都行）：
+
+```text
+请按 https://github.com/quantskills/skill-pandaai-factor-online 安装这个 skill，我要开始挖 PandaAI 因子。
+
+步骤：
+1. git clone 这个仓库，进目录后运行 ./install.sh
+2. 读 SKILL.zh-CN.md（英文环境读 SKILL.md）
+3. 运行 python3 scripts/bootstrap.py 做环境体检，按它打印的提示逐条解决，每次解决完重跑一次直到全部 ok
+4. 体检通过后，按 SKILL.zh-CN.md 的「首次对话」流程带我走：先告诉我算力还够跑多少次，
+   再跟我确认调仓周期、回测区间和本轮预算，然后给我一批试探因子的清单让我过目
+```
+
+技能里的「首次对话」是一段确定的契约，所以不同工具走出来的流程是一致的：先体检、缺什么补什么、
+汇报算力、确认三个参数、给出候选清单等你点头，全程在你批准之前不花算力。
+
+装好之后的日常触发：
 
 ```text
 帮我检查 PandaAI 环境和算力，然后开始挖因子
 挖一批 5 日调仓的反转类因子，2023 到 2025，按扣除换手成本后的多头超额排序
+从 alpha101 里挑 10 个适合 A 股 5 日调仓的，先短区间试一遍
 把这几个候选做样本外验证，区间用更早的三年
 我这批因子和市值的相关性有多高？帮我算一下
 ```

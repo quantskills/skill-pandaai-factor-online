@@ -57,11 +57,35 @@ Use the PandaAI website account. If it has no password — SMS-code signups do n
 run a command containing a password, run it yourself in a terminal; the token is saved to the config
 file and the agent continues from there.
 
-Example prompts:
+### One prompt to start
+
+Skip the manual install: paste this whole block into your AI tool (Claude Code, Cursor, Codex, and
+Kimi Code all work).
+
+```text
+Install this skill from https://github.com/quantskills/skill-pandaai-factor-online and help me
+start mining PandaAI factors.
+
+Steps:
+1. git clone the repository, cd into it, run ./install.sh
+2. Read SKILL.md
+3. Run python3 scripts/bootstrap.py, resolve whatever it flags, and re-run it after each fix
+   until every line reads ok
+4. Then follow the "First interaction" section of SKILL.md: tell me how many runs my balance
+   affords, confirm the rebalance cycle, backtest window, and budget with me, and show me a
+   probe batch for approval
+```
+
+The skill's "First interaction" section is an explicit contract, so the flow comes out the same
+across tools: preflight, fix what is missing, report the balance, settle three parameters, and show
+a candidate list for approval — spending no credits before you say go.
+
+Everyday prompts once installed:
 
 ```text
 Check my PandaAI environment and credit balance, then start mining
 Mine a batch of reversal factors at a 5-day rebalance over 2023-2025, ranked net of turnover cost
+Pick 10 alpha101 expressions suited to a 5-day A-share rebalance and probe them on a short window
 Validate these candidates out of sample on the earlier three-year window
 How correlated are these factors with market cap?
 ```

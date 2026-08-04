@@ -59,16 +59,49 @@ without wasting compute credits.
 
 中文版见 [SKILL.zh-CN.md](SKILL.zh-CN.md)。
 
-## Start here
+## First interaction
+
+When a user invokes this skill for the first time in a session, follow this sequence before any
+mining work. Do not skip ahead to writing formulas, and do not spend a single run until step 3.
+
+**1. Preflight.** Run it, do not paraphrase it:
 
 ```bash
 python3 scripts/bootstrap.py
 ```
 
 It checks the Python environment, the CLI install, the config file, login state, compute balance,
-the number of factors already on the account, and the bundled field and operator lists — and prints
-the exact next command whenever a step is not satisfied. Work through the steps below in order; the
-first four are onboarding and only need doing once.
+the number of factors on the account, and the bundled field and operator references, printing the
+exact next command whenever a step is unsatisfied.
+
+**2. Resolve whatever it flags, then stop and wait.**
+
+| Preflight says | Do this |
+|---|---|
+| `pandaai-cli not found on PATH` | Show `uv tool install pandaai-cli` and wait for the user to run it |
+| `not logged in` | Show `pandaai-cli login --phone <phone> --password <password>`, mention <https://www.pandaaiquant.com/personalcenter?id=1> for setting a password, and ask the user to run it themselves in a terminal. Never invent credentials, never guess a phone number |
+| `balance query failed` | The token expired; ask the user to log in again |
+
+Re-run preflight after the user reports back. Only continue when every line reads `ok`.
+
+**3. Report the account, in the user's terms.** Convert the balance into experiments —
+roughly 2 credits per run, so state how many runs are affordable — and mention how many factors are
+already on the account.
+
+**4. Fix the three parameters before writing any formula.** Ask the user, and do not guess:
+
+- **Rebalance cycle** (1–10 days). If the competition locks it at submission, it must be decided now
+  and every candidate evaluated at that cycle.
+- **Backtest window**, at most three years, plus which earlier window is reserved for out-of-sample
+  validation and will not be looked at during mining.
+- **Batch budget**, how many runs this session may spend.
+
+**5. Propose a probe batch** of 10–15 candidates spanning *different* hypotheses, and show the list
+for approval before creating anything. Run it on a short window first to catch formula errors
+cheaply, then take only the survivors to the full window.
+
+The rest of this document covers each of those stages in detail. Steps 1 and 2 are onboarding and
+only need doing once per machine.
 
 ## Step 1: Python environment
 
