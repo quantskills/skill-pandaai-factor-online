@@ -10,7 +10,7 @@ license: GPL-3.0-only
 
 English version: [SKILL.md](SKILL.md)
 
-## 首次对话
+## 核心流程 Core Workflow
 
 用户在一次会话里第一次调用本技能时，先按下面的顺序走完再开始挖掘。不要跳过去写公式，
 第 3 步之前不要花任何算力。
@@ -44,9 +44,29 @@ python3 scripts/bootstrap.py
 - **本次预算**，这一轮允许花多少次运行。
 
 **5. 提出一批 10–15 个候选的试探清单**，覆盖**不同**假设而不是同一想法的变体，
-先把清单给用户过目再创建。先在短区间跑，便宜地暴露公式错误，只有幸存者才上全区间。
+先把清单给用户过目再创建。先在短区间跑，便宜地暴露公式错误。
+
+**6. 幸存者上全区间**，然后做复盘——归因、证伪、成本校验、决策——**每一批**都做，不要留到最后。
+
+**7. 幸存者做样本外验证**，用第 4 步预留的更早区间，并对照本轮候选数量对应的多重检验阈值汇报结果。
 
 后面各节是每个阶段的展开。第 1、2 步属于上手流程，每台机器只需做一次。
+
+## 产出约定 Output Contract
+
+产出下面这些，放在用户的工作目录里而不是临时路径：
+
+- `candidates.txt`：每行一个候选，`名称 ~ 公式 ~ 方向`，**包括你预期会失败的那些**，
+  因为这个数量是多重检验的分母
+- `candidates.txt.state.json`：`batch.py` 写的断点文件，含每个候选的 factor id、run id 与指标，
+  中断后续跑不会重复花算力
+- 一张排序表，每个候选给出：Rank_IC、p 值、单调性、多头组超额收益、换手率、折算出的年化成本，
+  以及作为排序依据的净值
+- 每个幸存候选一条复盘记录：一句话机制、与已有因子集的最高相关性、做了哪项证伪测试及其结果、
+  以及「加码 / 正交化 / 放弃」的决策
+- 一段简短汇报，说明本轮总共测了多少个候选，以及由此得到的 p 阈值
+
+不要只用多空数字汇报因子，也不要在没说明是否做过样本外验证的情况下把样本内赢家端出来。
 
 ## 第 1 步：Python 环境
 
@@ -105,12 +125,11 @@ pandaai-cli --json factor_list --limit 1 --no-detail  # 返回体里的 total �
 写任何公式之前先查下面两份，因为名字写错要花一次运行才能发现：
 
 - [references/fields.md](references/fields.md)：348 个公式模式基础字段，并索引到完整的回测因子目录——
-  十五张表共 1050 条，覆盖财报三张表、估值与各类衍生指标、技术指标、alpha101 全部表达式、
-  Barra 风险因子，以及日频与日内计算因子
+  十四张表共 949 条，覆盖财报三张表、估值与各类衍生指标、技术指标定义、Barra 风险因子，
+  以及日频与日内计算因子
 - [references/operators.md](references/operators.md)：官方算子手册全文，十一个类别，
   每个函数含签名、说明、用法与示例
 
-alpha101 那张表是最快的现成起点：表达式已经用这套算子写好，可以直接塞进 `--formula`。
 公式模式下的可用性可能与数据接口不同，用到陌生字段时先在短区间验证一次。
 
 两种写法。**公式方式**（`--formula`）支持多行与中间变量，系统取最后一行作为因子值，字段名大小写均可。
@@ -254,7 +273,7 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 | 文件 | 内容 |
 |---|---|
 | [references/cli.md](references/cli.md) | 命令、参数、返回结构与已知 CLI bug |
-| [references/fields.md](references/fields.md) | 348 个公式模式字段，并索引 `references/fields-*.md` 的 1050 条回测因子目录 |
+| [references/fields.md](references/fields.md) | 348 个公式模式字段，并索引 `references/fields-*.md` 的 949 条回测因子目录 |
 | [references/operators.md](references/operators.md) | 官方算子手册全文 |
 | [references/pitfalls.md](references/pitfalls.md) | 会产出「能跑但跑错」因子的陷阱 |
 | [references/playbook.md](references/playbook.md) | 算力预算、复盘表、证伪菜单 |

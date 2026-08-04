@@ -85,7 +85,6 @@ Everyday prompts once installed:
 ```text
 Check my PandaAI environment and credit balance, then start mining
 Mine a batch of reversal factors at a 5-day rebalance over 2023-2025, ranked net of turnover cost
-Pick 10 alpha101 expressions suited to a 5-day A-share rebalance and probe them on a short window
 Validate these candidates out of sample on the earlier three-year window
 How correlated are these factors with market cap?
 ```
@@ -117,7 +116,7 @@ skill-pandaai-factor-online/
 ├── references/
 │   ├── cli.md                Commands, result JSON shape, known CLI bugs
 │   ├── fields.md             348 formula-mode fields, plus the catalog index
-│   ├── fields-*.md           Backtest factor catalog, 15 tables, 1050 entries (alpha101, Barra)
+│   ├── fields-*.md           Backtest factor catalog, 14 tables, 949 entries
 │   ├── operators.md          The official operator manual in full
 │   ├── pitfalls.md           Traps that produce valid-but-wrong factors
 │   ├── playbook.md           Credit budget, retrospective worksheet, falsification menu

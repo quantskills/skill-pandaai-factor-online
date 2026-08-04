@@ -59,7 +59,7 @@ without wasting compute credits.
 
 中文版见 [SKILL.zh-CN.md](SKILL.zh-CN.md)。
 
-## First interaction
+## Core Workflow
 
 When a user invokes this skill for the first time in a session, follow this sequence before any
 mining work. Do not skip ahead to writing formulas, and do not spend a single run until step 3.
@@ -98,10 +98,34 @@ already on the account.
 
 **5. Propose a probe batch** of 10–15 candidates spanning *different* hypotheses, and show the list
 for approval before creating anything. Run it on a short window first to catch formula errors
-cheaply, then take only the survivors to the full window.
+cheaply.
 
-The rest of this document covers each of those stages in detail. Steps 1 and 2 are onboarding and
-only need doing once per machine.
+**6. Escalate survivors** to the full window, then run the research loop — attribute, falsify,
+cost-check, decide — after *every* batch rather than once at the end.
+
+**7. Validate survivors out of sample** on the earlier window reserved in step 4, and report results
+against the multiple-testing threshold for the number of candidates tested.
+
+The rest of this document covers each stage in detail. Steps 1 and 2 are onboarding and only need
+doing once per machine.
+
+## Output Contract
+
+Produce, and keep in the user's working directory rather than a temporary path:
+
+- `candidates.txt` — one line per candidate, `name ~ formula ~ direction`, including the ones you
+  expect to fail, since the count is the multiple-testing denominator
+- `candidates.txt.state.json` — written by `batch.py`: factor id, run id, and metrics per candidate,
+  so an interrupted batch resumes without re-spending credits
+- A ranked table with, per candidate: Rank_IC, p-value, monotonicity, long-side excess return,
+  turnover, the implied annual cost, and the net figure the ranking is based on
+- A retrospective entry per surviving candidate: mechanism in one sentence, highest correlation
+  against the existing set, the falsification test run and its result, and a decision of
+  escalate / orthogonalize / abandon
+- A short report stating how many candidates were tested in total and the resulting p threshold
+
+Never report a factor on its long-short headline alone, and never present an in-sample winner
+without saying whether it has been validated out of sample.
 
 ## Step 1: Python environment
 
@@ -165,15 +189,14 @@ because names collide and old experiments pile up; give each batch a distinct na
 Consult these before writing any formula, since a wrong name costs a run to discover:
 
 - [references/fields.md](references/fields.md) — the 348 formula-mode base fields, plus an index to
-  the full backtest factor catalog: 1050 entries across fifteen tables covering the three financial
-  statements, valuation and derived metrics, technical indicators, the complete alpha101
-  expressions, Barra risk factors, and daily and intraday calculated factors
+  the backtest factor catalog: 949 entries across fourteen tables covering the three financial
+  statements, valuation and derived metrics, technical indicator definitions, Barra risk factors,
+  and daily and intraday calculated factors
 - [references/operators.md](references/operators.md) — the official operator manual in full:
   signatures, semantics, and a worked example per function, in eleven categories
 
-The alpha101 table is the fastest source of tested starting points: the expressions are already
-written in this operator dialect and can go straight into `--formula`. Availability in formula mode
-can differ from the data API, so validate an unfamiliar field on a short window first.
+Availability in formula mode can differ from the data API, so validate an unfamiliar field on a
+short window first.
 
 Two authoring modes. **Formula mode** (`--formula`) may span several lines with intermediate
 variables; the platform takes the last line as the factor value, and field names are
@@ -330,7 +353,7 @@ Execute these; they are not reference reading. Standard library only.
 | File | Contents |
 |---|---|
 | [references/cli.md](references/cli.md) | Commands, flags, result JSON shape, and known CLI bugs |
-| [references/fields.md](references/fields.md) | 348 formula-mode fields, indexing the 1050-entry backtest catalog in `references/fields-*.md` |
+| [references/fields.md](references/fields.md) | 348 formula-mode fields, indexing the 949-entry backtest catalog in `references/fields-*.md` |
 | [references/operators.md](references/operators.md) | The official operator manual in full |
 | [references/pitfalls.md](references/pitfalls.md) | Traps that produce valid-but-wrong factors |
 | [references/playbook.md](references/playbook.md) | Credit budget, retrospective worksheet, falsification menu |

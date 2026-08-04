@@ -8,13 +8,19 @@
 
 ## Backtest factor catalog / 回测因子目录
 
-A larger catalog exported from the platform's backtest factor list — 1050 entries across fifteen
-tables, including the full alpha101 expressions and the Barra risk factors. Availability in formula
-mode can differ from the data API, so validate an unfamiliar field on a short window before building
-on it.
+A larger catalog exported from the platform's backtest factor list — 949 entries across fourteen
+tables. Availability in formula mode can differ from the data API, so validate an unfamiliar field
+on a short window before building on it.
 
-平台回测因子清单导出的更大目录，十五张表共 1050 条，含 alpha101 全部表达式与 Barra 风险因子。
-公式模式下的可用性可能与数据接口不同，用到陌生字段时先在短区间验证一次再往上搭。
+The platform's list also contains an alpha101 table, deliberately not mirrored here: those
+expressions are public, every model already knows them, and in a competition they are the most
+crowded starting point there is. Ask for them by name if you want them.
+
+平台回测因子清单导出的更大目录，十四张表共 949 条。公式模式下的可用性可能与数据接口不同，
+用到陌生字段时先在短区间验证一次再往上搭。
+
+平台清单里还有一张 alpha101 表，这里刻意没有收录：那些表达式是公开的，模型本来就会背，
+而且在比赛里是最拥挤的起点。需要的话直接点名要。
 
 | File | Table | Entries |
 |---|---|---|
@@ -29,7 +35,6 @@ on it.
 | [fields-ma-indicators.md](fields-ma-indicators.md) | 均线类指标 / Moving-average indicators | 15 |
 | [fields-oscillators.md](fields-oscillators.md) | 超买超卖指标 / Overbought / oversold indicators | 23 |
 | [fields-volume-indicators.md](fields-volume-indicators.md) | 能量指标 / Volume and energy indicators | 14 |
-| [fields-alpha101.md](fields-alpha101.md) | alpha101 / Alpha101 expressions | 101 |
 | [fields-barra.md](fields-barra.md) | Barra因子 / Barra risk factors | 9 |
 | [fields-cal-date.md](fields-cal-date.md) | cal_date因子 / Daily calculated factors | 230 |
 | [fields-cal-mins.md](fields-cal-mins.md) | cal_mins因子 / Intraday calculated factors | 40 |

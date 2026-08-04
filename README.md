@@ -73,7 +73,6 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 ```text
 帮我检查 PandaAI 环境和算力，然后开始挖因子
 挖一批 5 日调仓的反转类因子，2023 到 2025，按扣除换手成本后的多头超额排序
-从 alpha101 里挑 10 个适合 A 股 5 日调仓的，先短区间试一遍
 把这几个候选做样本外验证，区间用更早的三年
 我这批因子和市值的相关性有多高？帮我算一下
 ```
@@ -104,7 +103,7 @@ skill-pandaai-factor-online/
 ├── references/
 │   ├── cli.md                命令、返回结构与已知 CLI bug
 │   ├── fields.md             348 个公式模式字段 + 回测因子目录索引
-│   ├── fields-*.md           回测因子目录 15 张表，1050 条（含 alpha101、Barra）
+│   ├── fields-*.md           回测因子目录 14 张表，949 条
 │   ├── operators.md          官方算子手册全文，含用法与示例
 │   ├── pitfalls.md           会产出「能跑但跑错」因子的陷阱
 │   ├── playbook.md           算力预算、复盘表、证伪菜单
