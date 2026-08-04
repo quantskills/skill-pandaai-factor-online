@@ -59,26 +59,18 @@ file and the agent continues from there.
 
 ### One prompt to start
 
-Skip the manual install: paste this whole block into your AI tool (Claude Code, Cursor, Codex, and
+Skip the manual install: paste this single line into your AI tool (Claude Code, Cursor, Codex, and
 Kimi Code all work).
 
 ```text
-Install this skill from https://github.com/quantskills/skill-pandaai-factor-online and help me
-start mining PandaAI factors.
-
-Steps:
-1. git clone the repository, cd into it, run ./install.sh
-2. Read SKILL.md
-3. Run python3 scripts/bootstrap.py, resolve whatever it flags, and re-run it after each fix
-   until every line reads ok
-4. Then follow the "First interaction" section of SKILL.md: tell me how many runs my balance
-   affords, confirm the rebalance cycle, backtest window, and budget with me, and show me a
-   probe batch for approval
+Install the skill at https://github.com/quantskills/skill-pandaai-factor-online and help me start mining PandaAI factors.
 ```
 
-The skill's "First interaction" section is an explicit contract, so the flow comes out the same
-across tools: preflight, fix what is missing, report the balance, settle three parameters, and show
-a candidate list for approval — spending no credits before you say go.
+No steps needed. Once the agent clones the repository it reads `AGENTS.md`, which says a cold start
+is exactly two actions: run `./install.sh`, then follow the skill's **Core Workflow**. That section
+is an explicit contract, so the flow comes out the same across tools: preflight, fix what is
+missing, report the balance as a number of affordable runs, settle the rebalance cycle and backtest
+window and budget, then show a candidate list for approval — spending no credits before you say go.
 
 Everyday prompts once installed:
 

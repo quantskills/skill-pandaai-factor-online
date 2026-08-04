@@ -52,21 +52,16 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 
 ### 懒人版：一句话开始
 
-不想手动装的话，把下面这段整个贴给你的 AI 工具（Claude Code、Cursor、Codex、Kimi Code 都行）：
+不想手动装的话，把这一句贴给你的 AI 工具（Claude Code、Cursor、Codex、Kimi Code 都行）：
 
 ```text
-请按 https://github.com/quantskills/skill-pandaai-factor-online 安装这个 skill，我要开始挖 PandaAI 因子。
-
-步骤：
-1. git clone 这个仓库，进目录后运行 ./install.sh
-2. 读 SKILL.zh-CN.md（英文环境读 SKILL.md）
-3. 运行 python3 scripts/bootstrap.py 做环境体检，按它打印的提示逐条解决，每次解决完重跑一次直到全部 ok
-4. 体检通过后，按 SKILL.zh-CN.md 的「首次对话」流程带我走：先告诉我算力还够跑多少次，
-   再跟我确认调仓周期、回测区间和本轮预算，然后给我一批试探因子的清单让我过目
+请按 https://github.com/quantskills/skill-pandaai-factor-online 装上这个 skill，带我开始挖 PandaAI 因子。
 ```
 
-技能里的「首次对话」是一段确定的契约，所以不同工具走出来的流程是一致的：先体检、缺什么补什么、
-汇报算力、确认三个参数、给出候选清单等你点头，全程在你批准之前不花算力。
+不用写步骤。Agent clone 完会读到仓库根目录的 `AGENTS.md`，那里写着冷启动只做两件事：
+运行 `./install.sh`，然后按 SKILL 的**核心流程**走。核心流程是一段确定的契约，
+所以不同工具的表现是一致的：先体检、缺什么补什么、把余额换算成还能跑多少次告诉你、
+确认调仓周期与回测区间与预算、给出候选清单等你点头，全程在你批准之前不花算力。
 
 装好之后的日常触发：
 
