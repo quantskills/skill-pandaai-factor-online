@@ -21,6 +21,12 @@ not in a temporary path.
 python3 scripts/install.py          # installs into the AI tools present on this machine
 ```
 
+If that reports no Python 3.10+, install it before anything else — every script here, this one
+included, is Python. `uv python install 3.12` if uv is present; otherwise offer the user
+`curl -LsSf https://astral.sh/uv/install.sh | sh` (PowerShell:
+`irm https://astral.sh/uv/install.ps1 | iex`), which needs no Python of its own, or a system
+package manager. Do not install anything without telling the user what you are about to run.
+
 **3. Hand over.** Read [SKILL.md](SKILL.md) (Chinese: [SKILL.zh-CN.md](SKILL.zh-CN.md)) and follow
 its **Core Workflow** section from step 1. That section is the opening script: preflight, resolve what it
 flags, report the balance as a number of affordable runs, settle the rebalance cycle and backtest
@@ -63,6 +69,12 @@ Non-negotiables when acting on this skill:
 ```bash
 python3 scripts/install.py          # 装进本机存在的 AI 工具
 ```
+
+如果它报告没有 Python 3.10+，先把 Python 装上再做别的——这里的每个脚本都是 Python 写的，
+包括它自己。本机有 uv 就 `uv python install 3.12`；否则给用户
+`curl -LsSf https://astral.sh/uv/install.sh | sh`（PowerShell 用
+`irm https://astral.sh/uv/install.ps1 | iex`），uv 自己不需要 Python，或者用系统包管理器。
+动手装任何东西之前，先告诉用户你要执行什么。
 
 **3. 交接。** 读 [SKILL.zh-CN.md](SKILL.zh-CN.md)，从它的**核心流程**第 1 步开始照做。那一节就是开场脚本：
 体检、按提示补齐、把余额换算成还能跑多少次告诉用户、与用户确认调仓周期与回测区间与预算、

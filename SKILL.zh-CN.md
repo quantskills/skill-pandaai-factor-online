@@ -30,7 +30,7 @@ python3 scripts/bootstrap.py
 
 | 体检报什么 | 怎么做 |
 |---|---|
-| `python ... needs Python 3.10 or newer` | 指向 <https://www.python.org/downloads/>，或 `brew install python` / `winget install Python.Python.3.12` |
+| `python ... needs Python 3.10 or newer` | 本机有 uv 就 `uv python install 3.12`；否则 <https://www.python.org/downloads/>、`brew install python` 或 `winget install Python.Python.3.12` |
 | `pandaai-cli not found on PATH` | 给出 `uv tool install pandaai-cli`，等用户执行 |
 | `not logged in` | 顺着下面的登录阶梯往上走 |
 | `balance query failed` | token 过期，从阶梯的最后一级重来 |

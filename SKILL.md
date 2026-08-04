@@ -81,7 +81,7 @@ Linux; on Windows the interpreter is `python`, not `python3`.
 
 | Preflight says | Do this |
 |---|---|
-| `python ... needs Python 3.10 or newer` | Point at <https://www.python.org/downloads/>, or `brew install python` / `winget install Python.Python.3.12` |
+| `python ... needs Python 3.10 or newer` | `uv python install 3.12` if uv is present; otherwise <https://www.python.org/downloads/>, `brew install python`, or `winget install Python.Python.3.12` |
 | `pandaai-cli not found on PATH` | Show `uv tool install pandaai-cli` and wait for the user to run it |
 | `not logged in` | Climb the login ladder below |
 | `balance query failed` | The token expired; climb the ladder from its last rung |

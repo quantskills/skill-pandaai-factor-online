@@ -33,6 +33,30 @@
 
 ## 🚀 快速开始
 
+唯一的前置是 Python 3.10 或更新。先确认一下：
+
+```bash
+python3 --version
+```
+
+**没有 Python，或者版本太旧**，最省事的是装 `uv`。它自己不需要 Python，装完既能装 Python
+也能装 PandaAI CLI，一条链走完：
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh                  # macOS / Linux
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"       # Windows
+
+uv python install 3.12
+uv tool install pandaai-cli
+```
+
+不想用 uv 也行：Python 从 [python.org](https://www.python.org/downloads/) 装，或 macOS
+`brew install python`、Ubuntu `sudo apt install python3`、Windows `winget install Python.Python.3.12`；
+CLI 则用 `pipx install pandaai-cli`，或者保底的 `pip install --user pandaai-cli`——
+后者取决于 Python 的安装方式，命令可能不在 PATH 上，体检脚本会告诉你。
+
+**Python 就绪之后：**
+
 ```bash
 # 先 cd 到一个长期存在的目录再 clone。安装用的是软链接，
 # clone 在 /tmp 之类的临时目录下，重启后会把技能从所有 AI 工具里静默摘掉。
@@ -40,25 +64,13 @@ git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
 python3 scripts/install.py         # 装进本机检测到的全部 AI 工具
 
-uv tool install pandaai-cli        # 没有 uv 见下方
-python3 scripts/bootstrap.py       # 检查环境并写好配置
+python3 scripts/bootstrap.py       # 检查环境并写好配置，缺什么它会说
 pandaai-cli login                  # 交互式输入手机号和密码
 python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可用算子
 ```
 
-没装过 `uv` 的话先装它，一行命令，它会把 CLI 装进独立环境并挂上 PATH：
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh                  # macOS / Linux
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"       # Windows
-```
-
-已经有 `pipx` 的话 `pipx install pandaai-cli` 等效。实在都不想装，
-`pip install --user pandaai-cli` 也能用，但取决于 Python 的安装方式，
-`pandaai-cli` 命令可能不在 PATH 上——体检脚本会告诉你。
-
 Windows 用 PowerShell，把 `python3` 换成 `python`。macOS 和 Linux 也可以用 `./install.sh`，
-它只是转发给同一个 Python 脚本。
+它只是转发给同一个 Python 脚本，并在找不到 Python 时告诉你怎么装。
 
 登录用 PandaAI 官网的账号。还没有账号的话，先在[官网](https://www.pandaaiquant.com/login)用手机号注册，
 再到[大赛页](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/)报名——算力是随报名发放的。
