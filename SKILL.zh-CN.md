@@ -30,9 +30,22 @@ python3 scripts/bootstrap.py
 
 | 体检报什么 | 怎么做 |
 |---|---|
+| `python ... needs Python 3.10 or newer` | 指向 <https://www.python.org/downloads/>，或 `brew install python` / `winget install Python.Python.3.12` |
 | `pandaai-cli not found on PATH` | 给出 `uv tool install pandaai-cli`，等用户执行 |
-| `not logged in` | 给出 `pandaai-cli login --phone <手机号> --password <密码>`，说明没有密码可到 <https://www.pandaaiquant.com/personalcenter?id=1> 设置，并请用户自己在终端里运行。绝不编造凭据，绝不猜手机号 |
-| `balance query failed` | token 过期，请用户重新登录 |
+| `not logged in` | 顺着下面的登录阶梯往上走 |
+| `balance query failed` | token 过期，从阶梯的最后一级重来 |
+
+**登录阶梯。** 不要替用户假设他在哪一级，问清楚，停在他还缺的第一级：
+
+1. **还没有 PandaAI 账号。** 到 <https://www.pandaaiquant.com/login> 用手机号注册，
+   再到 <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/> 报名大赛。
+   算力是随报名发放的，所以这一级不能跳过。
+2. **有账号但没有密码。** 用短信验证码注册的账号不会自动生成密码，
+   到 <https://www.pandaaiquant.com/personalcenter?id=1> 设一个。
+3. **凭据齐了。** `pandaai-cli login --phone <手机号> --password <密码>`；
+   两个参数都不给则改为交互式输入，密码不会落进 shell 历史。请用户自己在终端里运行。
+   绝不编造或猜测手机号和密码。如果用户主动把凭据交给你、并且你的工具允许，可以替他执行；
+   如果你的工具拒绝执行带密码的命令，直截了当说明，把命令交给用户，不要绕过这个拒绝。
 
 用户回来后重新跑一次体检，每一行都是 `ok` 才继续。
 

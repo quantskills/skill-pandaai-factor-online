@@ -80,9 +80,25 @@ Linux; on Windows the interpreter is `python`, not `python3`.
 
 | Preflight says | Do this |
 |---|---|
+| `python ... needs Python 3.10 or newer` | Point at <https://www.python.org/downloads/>, or `brew install python` / `winget install Python.Python.3.12` |
 | `pandaai-cli not found on PATH` | Show `uv tool install pandaai-cli` and wait for the user to run it |
-| `not logged in` | Show `pandaai-cli login --phone <phone> --password <password>`, mention <https://www.pandaaiquant.com/personalcenter?id=1> for setting a password, and ask the user to run it themselves in a terminal. Never invent credentials, never guess a phone number |
-| `balance query failed` | The token expired; ask the user to log in again |
+| `not logged in` | Climb the login ladder below |
+| `balance query failed` | The token expired; climb the ladder from its last rung |
+
+**Login ladder.** Ask which rung the user is on rather than assuming, and stop at the first one they
+still need:
+
+1. **No PandaAI account yet.** Register with a phone number at
+   <https://www.pandaaiquant.com/login>, then enter the competition at
+   <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/>. Compute credits come with
+   entering, so this rung is not optional.
+2. **Account but no password.** Signing up with an SMS code does not create one. Set one at
+   <https://www.pandaaiquant.com/personalcenter?id=1>.
+3. **Credentials ready.** `pandaai-cli login --phone <phone> --password <password>`, or omit both
+   flags for an interactive prompt that keeps the password out of shell history. Ask the user to run
+   it in their own terminal. Never invent or guess a phone number or password. If the user hands you
+   the credentials and your tooling permits it, run it for them; if your tooling refuses commands
+   containing a password, say so plainly and hand the command over rather than working around it.
 
 Re-run preflight after the user reports back. Only continue when every line reads `ok`.
 

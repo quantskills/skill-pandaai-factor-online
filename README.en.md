@@ -51,7 +51,10 @@ python3 scripts/bootstrap.py       # now reports balance, factor count, and avai
 On Windows use PowerShell and say `python` instead of `python3`. On macOS and Linux `./install.sh`
 also works; it just forwards to the same Python script.
 
-Use the PandaAI website account. If it has no password — SMS-code signups do not — set one at
+Log in with the PandaAI website account. Without one, register with a phone number at
+[the website](https://www.pandaaiquant.com/login) and enter the
+[competition](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/) — compute credits are
+granted on entry. If the account has no password, which SMS-code signups do not, set one at
 [the personal center](https://www.pandaaiquant.com/personalcenter?id=1). If your AI tool refuses to
 run a command containing a password, run it yourself in a terminal; the token is saved to the config
 file and the agent continues from there.
@@ -62,14 +65,20 @@ Skip the manual install: paste this single line into your AI tool (Claude Code, 
 Kimi Code all work).
 
 ```text
-Install the skill at https://github.com/quantskills/skill-pandaai-factor-online and help me start mining PandaAI factors.
+Install the skill at https://github.com/quantskills/skill-pandaai-factor-online, sign me up for the PandaAI factor competition, and start mining factors.
 ```
 
 No steps needed. Once the agent clones the repository it reads `AGENTS.md`, which says a cold start
 is exactly two actions: run the installer, then follow the skill's **Core Workflow**. That section
-is an explicit contract, so the flow comes out the same across tools: preflight, fix what is
-missing, report the balance as a number of affordable runs, settle the rebalance cycle and backtest
-window and budget, then show a candidate list for approval — spending no credits before you say go.
+is an explicit contract, so the flow comes out the same across tools.
+
+It opens with a read-only preflight and fixes whatever that flags: a download link if Python is too
+old, an install command if `pandaai-cli` is missing, a registration link and the competition entry
+link if there is no account yet, the personal-center link if the account has no password, and only
+then the login command — which you type yourself, since the agent never handles the password. Once
+preflight is green it converts the credit balance into a number of affordable runs, settles the
+rebalance cycle and backtest window and budget with you, and shows a candidate list for approval. No
+credits are spent before you say go.
 
 Everyday prompts once installed:
 

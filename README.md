@@ -47,8 +47,9 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 Windows 用 PowerShell，把 `python3` 换成 `python`。macOS 和 Linux 也可以用 `./install.sh`，
 它只是转发给同一个 Python 脚本。
 
-用 PandaAI 官网的账号。如果账号没有密码（只用短信验证码注册的就没有），
-到[个人中心](https://www.pandaaiquant.com/personalcenter?id=1)设置一个。
+登录用 PandaAI 官网的账号。还没有账号的话，先在[官网](https://www.pandaaiquant.com/login)用手机号注册，
+再到[大赛页](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/)报名——算力是随报名发放的。
+如果账号没有密码（只用短信验证码注册的就没有），到[个人中心](https://www.pandaaiquant.com/personalcenter?id=1)设一个。
 如果你的 AI 工具拒绝执行带密码的命令，就自己在终端里跑一遍；token 会存进配置文件，Agent 从那里继续。
 
 ### 懒人版：一句话开始
@@ -56,13 +57,16 @@ Windows 用 PowerShell，把 `python3` 换成 `python`。macOS 和 Linux 也可�
 不想手动装的话，把这一句贴给你的 AI 工具（Claude Code、Cursor、Codex、Kimi Code 都行）：
 
 ```text
-请按 https://github.com/quantskills/skill-pandaai-factor-online 装上这个 skill，带我开始挖 PandaAI 因子。
+参考这个链接 https://github.com/quantskills/skill-pandaai-factor-online 帮我装上 skill，带我参加 PandaAI 因子大赛，开始挖掘因子。
 ```
 
 不用写步骤。Agent clone 完会读到仓库根目录的 `AGENTS.md`，那里写着冷启动只做两件事：
-运行安装脚本，然后按 SKILL 的**核心流程**走。核心流程是一段确定的契约，
-所以不同工具的表现是一致的：先体检、缺什么补什么、把余额换算成还能跑多少次告诉你、
-确认调仓周期与回测区间与预算、给出候选清单等你点头，全程在你批准之前不花算力。
+运行安装脚本，然后按 SKILL 的**核心流程**走。核心流程是一段确定的契约，所以不同工具的表现是一致的。
+
+它会先做一次只读体检，缺什么补什么：Python 版本不够就给下载地址，没装 `pandaai-cli` 就给安装命令，
+没注册就给注册链接和大赛报名链接，注册了但没设密码就给个人中心链接，凭据齐了才让你去登录——
+密码始终由你自己在终端输入，Agent 不碰。体检全绿之后，它会把算力余额换算成"还能跑多少次"告诉你，
+跟你确认调仓周期、回测区间和本轮预算，再给出候选清单等你点头。你批准之前不花一点算力。
 
 装好之后的日常触发：
 

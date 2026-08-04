@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 
 GATEWAY_URL = "https://www.pandaaiquant.com/pandaApi"
+LOGIN_PAGE = "https://www.pandaaiquant.com/login"
+COMPETITION = "https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/"
 PERSONAL_CENTER = "https://www.pandaaiquant.com/personalcenter?id=1"
 DEFAULT_CONFIG = Path.home() / ".pandaai" / "config.yaml"
 REFS = Path(__file__).resolve().parent.parent / "references"
@@ -85,10 +87,15 @@ def check_config(path: Path, country_code: str) -> bool:
 
 
 def login_help() -> None:
-    print("\n  Log in with your PandaAI website account:")
-    print("    pandaai-cli login --phone <phone> --password <password>")
-    print("\n  Or omit both flags to be prompted, which keeps the password out of shell history.")
-    print(f"  No password, or forgot it? Set one at {PERSONAL_CENTER}")
+    print("\n  Stop at the first rung you still need:")
+    print(f"\n  1. No PandaAI account? Register with a phone number at {LOGIN_PAGE}")
+    print(f"     then enter the competition at {COMPETITION}")
+    print("     Compute credits are granted on entry, so this step is not optional.")
+    print(f"\n  2. Account but no password? SMS-code signups have none. Set one at")
+    print(f"     {PERSONAL_CENTER}")
+    print("\n  3. Credentials ready? Log in:")
+    print("       pandaai-cli login --phone <phone> --password <password>")
+    print("     Omit both flags to be prompted, which keeps the password out of shell history.")
     print("\n  If your AI tool refuses to handle the password, run the command yourself in a")
     print("  terminal (PowerShell on Windows). The token is saved to the config file, and the")
     print("  agent can continue from there without ever seeing the credentials.")
