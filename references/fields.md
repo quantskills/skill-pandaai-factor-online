@@ -6,6 +6,44 @@
 
 8 price/volume fields + 340 fundamental fields (348 total).
 
+## Backtest factor catalog / 回测因子目录
+
+A larger catalog exported from the platform's backtest factor list — 1050 entries across fifteen
+tables, including the full alpha101 expressions and the Barra risk factors. Availability in formula
+mode can differ from the data API, so validate an unfamiliar field on a short window before building
+on it.
+
+平台回测因子清单导出的更大目录，十五张表共 1050 条，含 alpha101 全部表达式与 Barra 风险因子。
+公式模式下的可用性可能与数据接口不同，用到陌生字段时先在短区间验证一次再往上搭。
+
+| File | Table | Entries |
+|---|---|---|
+| [fields-cashflow-statement.md](fields-cashflow-statement.md) | 现金流量表 / Cash flow statement | 70 |
+| [fields-balance-sheet.md](fields-balance-sheet.md) | 资产负债表 / Balance sheet | 156 |
+| [fields-income-statement.md](fields-income-statement.md) | 利润表 / Income statement | 91 |
+| [fields-valuation.md](fields-valuation.md) | 估值 / Valuation ratios | 37 |
+| [fields-cashflow-derived.md](fields-cashflow-derived.md) | 现金流衍生 / Derived cash-flow metrics | 26 |
+| [fields-financial-derived.md](fields-financial-derived.md) | 财务指标衍生 / Derived financial metrics | 111 |
+| [fields-growth-derived.md](fields-growth-derived.md) | 增长指标衍生 / Derived growth metrics | 33 |
+| [fields-operating-derived.md](fields-operating-derived.md) | 经营指标衍生 / Derived operating metrics | 94 |
+| [fields-ma-indicators.md](fields-ma-indicators.md) | 均线类指标 / Moving-average indicators | 15 |
+| [fields-oscillators.md](fields-oscillators.md) | 超买超卖指标 / Overbought / oversold indicators | 23 |
+| [fields-volume-indicators.md](fields-volume-indicators.md) | 能量指标 / Volume and energy indicators | 14 |
+| [fields-alpha101.md](fields-alpha101.md) | alpha101 / Alpha101 expressions | 101 |
+| [fields-barra.md](fields-barra.md) | Barra因子 / Barra risk factors | 9 |
+| [fields-cal-date.md](fields-cal-date.md) | cal_date因子 / Daily calculated factors | 230 |
+| [fields-cal-mins.md](fields-cal-mins.md) | cal_mins因子 / Intraday calculated factors | 40 |
+
+Financial-statement tables also carry derived fields: append `_mrq_n` (n = 1–12) to a base field to
+read the value from the n-th most recent report before the query date, with the bare field being the
+current period.
+财报三张表还带衍生字段：在原字段后加 `_mrq_n`（n 为 1–12）表示查询日往前第 n 期财报中的该字段值，
+不带后缀即当期。
+
+---
+
+## Formula-mode base fields / 公式模式基础字段
+
 ## Price & volume / 量价
 
 | Field | 中文名称 |

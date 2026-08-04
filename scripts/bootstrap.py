@@ -130,6 +130,11 @@ def check_references() -> None:
         count = len(re.findall(row, path.read_text(), re.M))
         say(OK, f"{count} {label} available in references/{name}")
 
+    catalog = sorted(REFS.glob("fields-*.md"))
+    if catalog:
+        entries = sum(len(re.findall(r"^\| `", p.read_text(), re.M)) for p in catalog)
+        say(OK, f"{entries} backtest catalog entries across {len(catalog)} tables in references/fields-*.md")
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])

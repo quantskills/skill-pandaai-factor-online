@@ -74,12 +74,16 @@ pandaai-cli --json factor_list --limit 1 --no-detail  # 返回体里的 total �
 
 ## 第 4 步：搞清楚有什么可用
 
-平台提供 348 个数据字段和 137 个算子，两份清单都随技能附带。写任何公式之前先查，
-因为名字写错要花一次运行才能发现：
+写任何公式之前先查下面两份，因为名字写错要花一次运行才能发现：
 
-- [references/fields.md](references/fields.md)：8 个量价字段 + 340 个基本面字段
+- [references/fields.md](references/fields.md)：348 个公式模式基础字段，并索引到完整的回测因子目录——
+  十五张表共 1050 条，覆盖财报三张表、估值与各类衍生指标、技术指标、alpha101 全部表达式、
+  Barra 风险因子，以及日频与日内计算因子
 - [references/operators.md](references/operators.md)：官方算子手册全文，十一个类别，
   每个函数含签名、说明、用法与示例
+
+alpha101 那张表是最快的现成起点：表达式已经用这套算子写好，可以直接塞进 `--formula`。
+公式模式下的可用性可能与数据接口不同，用到陌生字段时先在短区间验证一次。
 
 两种写法。**公式方式**（`--formula`）支持多行与中间变量，系统取最后一行作为因子值，字段名大小写均可。
 **Python 方式**（`--code` 或 `--file`）继承 `Factor` 并实现 `calculate(self, factors)`，
@@ -222,7 +226,7 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 | 文件 | 内容 |
 |---|---|
 | [references/cli.md](references/cli.md) | 命令、参数、返回结构与已知 CLI bug |
-| [references/fields.md](references/fields.md) | 348 个数据字段 |
+| [references/fields.md](references/fields.md) | 348 个公式模式字段，并索引 `references/fields-*.md` 的 1050 条回测因子目录 |
 | [references/operators.md](references/operators.md) | 官方算子手册全文 |
 | [references/pitfalls.md](references/pitfalls.md) | 会产出「能跑但跑错」因子的陷阱 |
 | [references/playbook.md](references/playbook.md) | 算力预算、复盘表、证伪菜单 |

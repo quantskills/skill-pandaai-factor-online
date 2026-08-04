@@ -129,12 +129,18 @@ because names collide and old experiments pile up; give each batch a distinct na
 
 ## Step 4: Know what you can use
 
-348 data fields and 137 operators are available. Both lists ship with this skill and should be
-consulted before writing any formula, since a wrong name costs a run to discover:
+Consult these before writing any formula, since a wrong name costs a run to discover:
 
-- [references/fields.md](references/fields.md) — 8 price/volume fields plus 340 fundamentals
+- [references/fields.md](references/fields.md) — the 348 formula-mode base fields, plus an index to
+  the full backtest factor catalog: 1050 entries across fifteen tables covering the three financial
+  statements, valuation and derived metrics, technical indicators, the complete alpha101
+  expressions, Barra risk factors, and daily and intraday calculated factors
 - [references/operators.md](references/operators.md) — the official operator manual in full:
   signatures, semantics, and a worked example per function, in eleven categories
+
+The alpha101 table is the fastest source of tested starting points: the expressions are already
+written in this operator dialect and can go straight into `--formula`. Availability in formula mode
+can differ from the data API, so validate an unfamiliar field on a short window first.
 
 Two authoring modes. **Formula mode** (`--formula`) may span several lines with intermediate
 variables; the platform takes the last line as the factor value, and field names are
@@ -291,7 +297,7 @@ Execute these; they are not reference reading. Standard library only.
 | File | Contents |
 |---|---|
 | [references/cli.md](references/cli.md) | Commands, flags, result JSON shape, and known CLI bugs |
-| [references/fields.md](references/fields.md) | 348 data fields |
+| [references/fields.md](references/fields.md) | 348 formula-mode fields, indexing the 1050-entry backtest catalog in `references/fields-*.md` |
 | [references/operators.md](references/operators.md) | The official operator manual in full |
 | [references/pitfalls.md](references/pitfalls.md) | Traps that produce valid-but-wrong factors |
 | [references/playbook.md](references/playbook.md) | Credit budget, retrospective worksheet, falsification menu |

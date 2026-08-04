@@ -84,7 +84,8 @@ skill-pandaai-factor-online/
 │   └── openai.yaml           Codex 风格适配
 ├── references/
 │   ├── cli.md                命令、返回结构与已知 CLI bug
-│   ├── fields.md             348 个数据字段
+│   ├── fields.md             348 个公式模式字段 + 回测因子目录索引
+│   ├── fields-*.md           回测因子目录 15 张表，1050 条（含 alpha101、Barra）
 │   ├── operators.md          官方算子手册全文，含用法与示例
 │   ├── pitfalls.md           会产出「能跑但跑错」因子的陷阱
 │   ├── playbook.md           算力预算、复盘表、证伪菜单

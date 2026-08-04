@@ -92,7 +92,8 @@ skill-pandaai-factor-online/
 │   └── openai.yaml           Codex-style adapter
 ├── references/
 │   ├── cli.md                Commands, result JSON shape, known CLI bugs
-│   ├── fields.md             348 data fields
+│   ├── fields.md             348 formula-mode fields, plus the catalog index
+│   ├── fields-*.md           Backtest factor catalog, 15 tables, 1050 entries (alpha101, Barra)
 │   ├── operators.md          The official operator manual in full
 │   ├── pitfalls.md           Traps that produce valid-but-wrong factors
 │   ├── playbook.md           Credit budget, retrospective worksheet, falsification menu
