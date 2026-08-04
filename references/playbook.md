@@ -5,10 +5,11 @@ A concrete path from a fresh account to a defensible submission, plus the templa
 
 ## Credit budget first / 先算算力预算
 
-Each run costs roughly 2 credits. Decide the split before you start, because the failure mode is
-spending everything on stage 1.
+Creating a factor is free; each run costs 5 credits whatever the window length. Decide the split
+before you start, because the failure mode is spending everything on stage 1.
 
-每次运行约 2 算力。开始之前先定好分配，因为典型的翻车方式就是把预算全花在第一阶段。
+创建因子不扣算力，每次运行固定扣 5 算力，与窗口长短无关。
+开始之前先定好分配，因为典型的翻车方式就是把预算全花在第一阶段。
 
 | Stage / 阶段 | Runs / 次数 | Purpose / 目的 |
 |---|---|---|
@@ -18,8 +19,10 @@ spending everything on stage 1.
 | Out-of-sample / 样本外 | 10% | Earlier three-year range / 更早的三年区间 |
 
 `pandaai-cli --json balance` before and after each batch; a batch that costs more than expected
-usually means silent retries.
+usually means silent retries. Wait a couple of minutes before the second reading — the deduction
+settles behind the run, so an immediate check undercounts and the missing credits turn up later.
 每批前后各查一次 `pandaai-cli --json balance`；花费超出预期通常意味着有静默重试。
+第二次读之前等两分钟：扣费结算滞后于运行，立刻去读会读少，少掉的那部分过一会儿才出现。
 
 ## Stage 1: probe / 第一阶段：试探
 

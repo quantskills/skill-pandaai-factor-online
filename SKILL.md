@@ -108,7 +108,7 @@ they have not:
 Re-run preflight after the user reports back. Only continue when every line reads `ok`.
 
 **3. Report the account, in the user's terms.** Convert the balance into experiments —
-roughly 2 credits per run, so state how many runs are affordable — and mention how many factors are
+5 credits per run, so state how many runs are affordable — and mention how many factors are
 already on the account.
 
 **4. Fix the three parameters before writing any formula.** Ask the user, and do not guess:
@@ -205,8 +205,10 @@ pandaai-cli --json balance                          # compute credits
 pandaai-cli --json factor_list --limit 1 --no-detail  # `total` is the factor count
 ```
 
-Each run costs roughly 2 credits, so the balance translates directly into how many experiments are
-affordable — divide by two and plan the batch sizes against that number. The factor count matters
+Creating a factor is free; each run costs 5 credits, flat — a three-month window and a three-year
+one cost the same. Divide the balance by five and plan the batch sizes against that number. The
+balance also settles a minute or two behind, so a reading taken the instant a run returns
+undercounts it. The factor count matters
 because names collide and old experiments pile up; give each batch a distinct name prefix so it can
 be cleaned up later. Do not reach for `factor_delete --pattern` to do that: it returns HTTP 422 and
 deletes nothing, because the CLI collects ids across pages without de-duplicating them.
@@ -292,7 +294,8 @@ lookback window — it also covers look-ahead operators, cross-sectional versus 
 the direction flag, and why nearly everything correlates with market cap.
 
 **Validate cheaply.** Before a 3-year run, create the same formula over a ~3-month window and run it
-once. Syntax and field errors surface at the same credit cost but a fraction of the wall-clock time.
+once. Syntax and field errors surface at the same credit cost but a fraction of the wall-clock time:
+what a short window buys is the wait, not the credits.
 
 ## Running
 

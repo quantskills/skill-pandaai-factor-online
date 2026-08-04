@@ -140,9 +140,10 @@ def check_account() -> bool:
     power = (balance.get("balance") or {}).get("computingPower")
     say(OK, f"compute balance: {power}")
     if isinstance(power, (int, float)):
-        # Runs cost roughly 2 credits, and a balance is only meaningful as experiments.
-        say(OK if power >= 20 else WARN,
-            f"that is about {int(power // 2)} runs left at roughly 2 credits each")
+        # Measured at 5 credits a run, flat: 80 credits over 16 runs, three-month and three-year
+        # windows alike. A balance is only meaningful once it is stated as experiments.
+        say(OK if power >= 50 else WARN,
+            f"that is about {int(power // 5)} runs left at 5 credits each")
         if power <= 0:
             say(WARN, "a zero balance usually means the account has not entered the competition")
             print(f"       Enter at {COMPETITION} — credits are granted on entry.")

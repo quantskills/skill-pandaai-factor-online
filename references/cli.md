@@ -78,8 +78,10 @@ pandaai-cli --json factor_run <factor_id> [--download [PATH]] [--poll-interval S
 ```
 
 Starts the run, polls until it settles, and returns results. Defaults: poll every 2s, time out at
-600s. Each run deducts compute credits whether it succeeds or fails.
-启动、轮询到结束并返回结果。默认 2 秒轮询、600 秒超时。无论成功失败都会扣算力。
+600s. Each run deducts 5 credits whether it succeeds or fails, and whatever the window length;
+`factor_create` is free. The deduction settles a minute or two after the run returns.
+启动、轮询到结束并返回结果。默认 2 秒轮询、600 秒超时。无论成功失败、无论窗口长短，
+每次运行都扣 5 算力；`factor_create` 不扣。扣费在运行返回之后一两分钟才结算。
 
 Success payload carries `results.factor_analysis` with IC statistics and per-group returns;
 failure payload carries `error.node_errors` with the formula parse or runtime error.
