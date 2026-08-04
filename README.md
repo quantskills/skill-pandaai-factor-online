@@ -139,7 +139,9 @@ skill-pandaai-factor-online/
     └── validate-qsh-form.mjs qsh-form 自检
 ```
 
-Python 脚本只依赖标准库。
+Python 脚本只依赖标准库。改过 `scripts/` 后跑一次 `python3 scripts/selftest.py`：不联网、不扣算力，
+覆盖续跑指纹、失败不重试、预算上限、结果校验与统计口径，并在装有 Python 3.9 时真实运行一次，
+确认预检给出提示而不是崩溃。
 
 ## 📐 核心约束
 
@@ -151,21 +153,6 @@ Python 脚本只依赖标准库。
 | 📊 按多头净超额评判 | 多空年化不作为结论；换手率一律折算成年化成本后再排序 |
 | 🧪 统计纪律 | 保留全部候选（含失败）作为多重检验的分母 |
 | 🚫 只述不荐 | 输出研究结构与事实归纳，不构成任何投资建议 |
-
-## 🛠 开发与自检
-
-改动 `scripts/` 下任何脚本后跑一遍离线自检，不联网、不扣算力：
-
-```bash
-python3 scripts/selftest.py
-```
-
-它覆盖续跑指纹、失败不重试、预算上限、结果校验与统计口径，并在装有 Python 3.9 时
-真实运行一次，确认预检能给出提示而不是崩溃。
-
-`SKILL.md` 中的 ` ```json qsh-form ` 围栏块声明该技能在 quantskillhub 运行页的定制表单：
-阶段、回测区间、调仓周期与双向成本会直接组装进提示词。推送时 CI 自动校验，
-本地用 `node scripts/validate-qsh-form.mjs SKILL.md`。
 
 ## ⚠️ 免责声明
 
@@ -183,3 +170,7 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
   <br>
   <sub>扫码加入 PandaAI 社群，交流 QUANTSKILLS 技能、Agent 工作流与量化研究实践。</sub>
 </div>
+
+## qsh-form 表单声明（可选增强）
+
+SKILL.md 中的 ` ```json qsh-form ` 围栏块声明该技能在 quantskillhub 运行页的定制表单：阶段、回测区间、调仓周期与双向成本会直接组装进提示词。推送时 CI 自动校验声明合法性；本地自检：`node scripts/validate-qsh-form.mjs SKILL.md`。无此块时技能页退化为通用主输入框，功能不受影响。

@@ -160,7 +160,10 @@ skill-pandaai-factor-online/
     └── validate-qsh-form.mjs qsh-form self-check
 ```
 
-The Python scripts need only the standard library.
+The Python scripts need only the standard library. After changing anything under `scripts/`, run
+`python3 scripts/selftest.py`: no network, no credits. It covers resume fingerprints, the
+no-silent-retry rule, budget caps, result validation and the statistics, and where a Python 3.9 is
+available it runs one for real, confirming the preflight explains itself instead of crashing.
 
 ## 📐 Core constraints
 
@@ -172,22 +175,6 @@ The Python scripts need only the standard library.
 | 📊 Judge on net long-side excess | The long-short headline is not the conclusion; convert turnover to an annual cost first |
 | 🧪 Statistical discipline | Keep every candidate tested, failures included, as the multiple-testing denominator |
 | 🚫 Description, not recommendation | Research structure and factual summaries only, never investment advice |
-
-## 🛠 Development and self-test
-
-Run the offline self-test after changing anything under `scripts/`. No network, no credits:
-
-```bash
-python3 scripts/selftest.py
-```
-
-It covers resume fingerprints, the no-silent-retry rule, budget caps, result validation and the
-statistics, and where a Python 3.9 is available it runs one for real, confirming the preflight
-explains itself instead of crashing.
-
-The ` ```json qsh-form ` block in SKILL.md declares this skill's custom run form on quantskillhub:
-stage, backtest window, rebalance cycle and round-trip cost are assembled straight into the prompt.
-CI validates it on push; locally, run `node scripts/validate-qsh-form.mjs SKILL.md`.
 
 ## ⚠️ Disclaimer
 
@@ -206,3 +193,7 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
   <br>
   <sub>Scan to join the PandaAI community for QUANTSKILLS skills, agent workflows, and quant research practice.</sub>
 </div>
+
+## qsh-form declaration (optional enhancement)
+
+The ` ```json qsh-form ` block in SKILL.md declares this skill's custom run form on quantskillhub: stage, backtest window, rebalance cycle and round-trip cost are assembled straight into the prompt. CI validates the declaration on push; locally, run `node scripts/validate-qsh-form.mjs SKILL.md`. Without the block the skill page falls back to the generic input box, with no loss of function.
