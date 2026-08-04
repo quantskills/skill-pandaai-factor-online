@@ -38,15 +38,29 @@ loop that keeps an agent from spending a whole credit balance on a hundred varia
 ## 🚀 Quick start
 
 ```bash
+# Clone somewhere permanent. Installs are symlinks, so a clone under /tmp silently
+# removes the skill from every AI tool the next time the system clears it.
 git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
 python3 scripts/install.py         # installs into every AI tool found on this machine
 
-uv tool install pandaai-cli
+uv tool install pandaai-cli        # no uv? see below
 python3 scripts/bootstrap.py       # checks the environment and seeds the config
-pandaai-cli login --phone <phone> --password <password>
+pandaai-cli login                  # prompts for phone and password
 python3 scripts/bootstrap.py       # now reports balance, factor count, and available operators
 ```
+
+Without `uv`, install it first. It is one command and keeps the CLI in its own environment while
+still putting it on PATH:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh                  # macOS / Linux
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"       # Windows
+```
+
+`pipx install pandaai-cli` works the same way if you already have pipx. Failing both,
+`pip install --user pandaai-cli` installs it too, though whether `pandaai-cli` lands on PATH depends
+on how Python was installed — preflight will tell you.
 
 On Windows use PowerShell and say `python` instead of `python3`. On macOS and Linux `./install.sh`
 also works; it just forwards to the same Python script.

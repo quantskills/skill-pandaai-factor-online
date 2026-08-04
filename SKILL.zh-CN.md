@@ -15,8 +15,8 @@ English version: [SKILL.md](SKILL.md)
 用户在一次会话里第一次调用本技能时，先按下面的顺序走完再开始挖掘。不要跳过去写公式，
 第 3 步之前不要花任何算力。
 
-**1. 体检。** 它是只读的——只调用 `balance` 和 `factor_list`，不花算力——所以直接运行，
-不要用自己的话复述它的功能：
+**1. 体检。** 它不花算力——只调用 `balance` 和 `factor_list`；唯一会写的东西是 `~/.pandaai/config.yaml`，
+且仅在该文件缺失时创建，因为 CLI 自己创建不了它。直接运行，不要用自己的话复述它的功能：
 
 ```bash
 python3 scripts/bootstrap.py
@@ -35,17 +35,19 @@ python3 scripts/bootstrap.py
 | `not logged in` | 顺着下面的登录阶梯往上走 |
 | `balance query failed` | token 过期，从阶梯的最后一级重来 |
 
-**登录阶梯。** 不要替用户假设他在哪一级，问清楚，停在他还缺的第一级：
+**登录阶梯。** 不要替用户假设，问清楚他已经做了哪几级，然后带他走没做的：
 
-1. **还没有 PandaAI 账号。** 到 <https://www.pandaaiquant.com/login> 用手机号注册，
-   再到 <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/> 报名大赛。
-   算力是随报名发放的，所以这一级不能跳过。
-2. **有账号但没有密码。** 用短信验证码注册的账号不会自动生成密码，
+1. **还没有 PandaAI 账号。** 到 <https://www.pandaaiquant.com/login> 用手机号注册。
+2. **注册了但没报名大赛。** 到 <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/> 报名。
+   这一级必须和注册分开说：算力是随报名发放的，跳过它的人照样能登录，然后一个因子都跑不了。
+   第 3 步看到余额为 0，基本就是漏了这一级。
+3. **没有密码。** 用短信验证码注册的账号不会自动生成密码，
    到 <https://www.pandaaiquant.com/personalcenter?id=1> 设一个。
-3. **凭据齐了。** `pandaai-cli login --phone <手机号> --password <密码>`；
-   两个参数都不给则改为交互式输入，密码不会落进 shell 历史。请用户自己在终端里运行。
-   绝不编造或猜测手机号和密码。如果用户主动把凭据交给你、并且你的工具允许，可以替他执行；
-   如果你的工具拒绝执行带密码的命令，直截了当说明，把命令交给用户，不要绕过这个拒绝。
+4. **登录。** 优先推荐直接 `pandaai-cli login`，它会交互式地问手机号和密码，密码不落进 shell 历史；
+   参数写法是 `--phone 13800138000 --password 你的密码`。给具体示例，不要写 `<手机号>` 这种尖括号占位符，
+   会有人连尖括号一起敲进去。请用户自己在终端里运行。绝不编造或猜测手机号和密码。
+   如果用户主动把凭据交给你、并且你的工具允许，可以替他执行；如果你的工具拒绝执行带密码的命令，
+   直截了当说明，把命令交给用户，不要绕过这个拒绝。
 
 用户回来后重新跑一次体检，每一行都是 `ok` 才继续。
 

@@ -49,11 +49,22 @@ def check_cli() -> str | None:
     path = shutil.which("pandaai-cli")
     if not path:
         say(BAD, "pandaai-cli not found on PATH")
-        print("\n  Install it in an isolated environment so it stays on PATH for this project:")
-        print("    uv tool install pandaai-cli        # or: pipx install pandaai-cli")
-        print("\n  If you prefer a project virtualenv instead, remember to activate it every time:")
-        activate = r".venv\Scripts\activate" if WINDOWS else "source .venv/bin/activate"
-        print(f"    uv venv && uv pip install pandaai-cli && {activate}")
+        if shutil.which("uv"):
+            print("\n  Install it in an isolated environment so it stays on PATH:")
+            print("    uv tool install pandaai-cli")
+        elif shutil.which("pipx"):
+            print("\n  Install it in an isolated environment so it stays on PATH:")
+            print("    pipx install pandaai-cli")
+        else:
+            print("\n  Neither uv nor pipx is installed. Either get uv first, which keeps the CLI")
+            print("  in its own environment and on PATH:")
+            print("    curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux"
+                  if not WINDOWS else
+                  '    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"   # Windows')
+            print("    uv tool install pandaai-cli")
+            print("\n  Or install straight into this Python, which is simpler but can leave the")
+            print("  command off PATH depending on how Python was installed:")
+            print(f"    {sys.executable} -m pip install --user pandaai-cli")
         return None
 
     say(OK, f"pandaai-cli at {path}")
@@ -87,15 +98,17 @@ def check_config(path: Path, country_code: str) -> bool:
 
 
 def login_help() -> None:
-    print("\n  Stop at the first rung you still need:")
+    print("\n  Work through whichever of these you have not done yet:")
     print(f"\n  1. No PandaAI account? Register with a phone number at {LOGIN_PAGE}")
-    print(f"     then enter the competition at {COMPETITION}")
-    print("     Compute credits are granted on entry, so this step is not optional.")
-    print(f"\n  2. Account but no password? SMS-code signups have none. Set one at")
+    print(f"\n  2. Registered but not entered the competition? Enter at")
+    print(f"     {COMPETITION}")
+    print("     Compute credits are granted on entry. Without it you can log in but run nothing.")
+    print(f"\n  3. No password? Signing up with an SMS code does not create one. Set it at")
     print(f"     {PERSONAL_CENTER}")
-    print("\n  3. Credentials ready? Log in:")
-    print("       pandaai-cli login --phone <phone> --password <password>")
-    print("     Omit both flags to be prompted, which keeps the password out of shell history.")
+    print("\n  4. Then log in. This asks for the phone and password interactively, which keeps")
+    print("     the password out of your shell history:")
+    print("       pandaai-cli login")
+    print("     Or pass them as flags: pandaai-cli login --phone 13800138000 --password yourpass")
     print("\n  If your AI tool refuses to handle the password, run the command yourself in a")
     print("  terminal (PowerShell on Windows). The token is saved to the config file, and the")
     print("  agent can continue from there without ever seeing the credentials.")
@@ -121,12 +134,19 @@ def check_account() -> bool:
         return False
     power = (balance.get("balance") or {}).get("computingPower")
     say(OK, f"compute balance: {power}")
-    if isinstance(power, (int, float)) and power < 100:
-        say(WARN, f"that is about {int(power // 2)} runs left at roughly 2 credits each")
+    if isinstance(power, (int, float)):
+        # Runs cost roughly 2 credits, and a balance is only meaningful as experiments.
+        say(OK if power >= 20 else WARN,
+            f"that is about {int(power // 2)} runs left at roughly 2 credits each")
+        if power <= 0:
+            say(WARN, "a zero balance usually means the account has not entered the competition")
+            print(f"       Enter at {COMPETITION} — credits are granted on entry.")
 
     listing = cli_json("factor_list", "--limit", "1", "--no-detail")
     if listing.get("success"):
         say(OK, f"factors already on this account: {listing.get('total')}")
+    else:
+        say(WARN, f"factor count unavailable: {listing.get('error', {}).get('message', listing)}")
     return True
 
 
@@ -159,13 +179,15 @@ def main() -> int:
         return 1
 
     logged_in = check_config(args.config, args.country_code)
+    # References are local, so report them even when the account checks cannot run: they are what
+    # tells a user the skill itself installed correctly.
+    check_references()
     if not logged_in:
         say(WARN, "not logged in")
         login_help()
         return 0
 
     ready = check_account()
-    check_references()
 
     if ready:
         print("\nReady. Read SKILL.md, then start with a short-window probe batch:")

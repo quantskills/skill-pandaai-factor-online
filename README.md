@@ -34,15 +34,28 @@
 ## 🚀 快速开始
 
 ```bash
+# 先 cd 到一个长期存在的目录再 clone。安装用的是软链接，
+# clone 在 /tmp 之类的临时目录下，重启后会把技能从所有 AI 工具里静默摘掉。
 git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
 python3 scripts/install.py         # 装进本机检测到的全部 AI 工具
 
-uv tool install pandaai-cli
+uv tool install pandaai-cli        # 没有 uv 见下方
 python3 scripts/bootstrap.py       # 检查环境并写好配置
-pandaai-cli login --phone <官网注册手机号> --password <官网登录密码>
+pandaai-cli login                  # 交互式输入手机号和密码
 python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可用算子
 ```
+
+没装过 `uv` 的话先装它，一行命令，它会把 CLI 装进独立环境并挂上 PATH：
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh                  # macOS / Linux
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"       # Windows
+```
+
+已经有 `pipx` 的话 `pipx install pandaai-cli` 等效。实在都不想装，
+`pip install --user pandaai-cli` 也能用，但取决于 Python 的安装方式，
+`pandaai-cli` 命令可能不在 PATH 上——体检脚本会告诉你。
 
 Windows 用 PowerShell，把 `python3` 换成 `python`。macOS 和 Linux 也可以用 `./install.sh`，
 它只是转发给同一个 Python 脚本。

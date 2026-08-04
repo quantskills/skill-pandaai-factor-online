@@ -64,8 +64,9 @@ without wasting compute credits.
 When a user invokes this skill for the first time in a session, follow this sequence before any
 mining work. Do not skip ahead to writing formulas, and do not spend a single run until step 3.
 
-**1. Preflight.** It is read-only — it queries `balance` and `factor_list` and costs no compute
-credits — so run it rather than paraphrasing what it would do:
+**1. Preflight.** It costs no compute credits — it only queries `balance` and `factor_list` — and
+the sole thing it writes is `~/.pandaai/config.yaml` when that file is missing, which the CLI cannot
+create for itself. Run it rather than paraphrasing what it would do:
 
 ```bash
 python3 scripts/bootstrap.py
@@ -85,20 +86,23 @@ Linux; on Windows the interpreter is `python`, not `python3`.
 | `not logged in` | Climb the login ladder below |
 | `balance query failed` | The token expired; climb the ladder from its last rung |
 
-**Login ladder.** Ask which rung the user is on rather than assuming, and stop at the first one they
-still need:
+**Login ladder.** Ask which rungs the user has already done rather than assuming, and walk the ones
+they have not:
 
-1. **No PandaAI account yet.** Register with a phone number at
-   <https://www.pandaaiquant.com/login>, then enter the competition at
-   <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/>. Compute credits come with
-   entering, so this rung is not optional.
-2. **Account but no password.** Signing up with an SMS code does not create one. Set one at
+1. **No PandaAI account yet.** Register with a phone number at <https://www.pandaaiquant.com/login>.
+2. **Registered but not entered the competition.** Enter at
+   <https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/>. Keep this separate from
+   registering: credits are granted on entry, so someone who skips it logs in fine and then cannot
+   run a single factor. A zero balance in step 3 almost always means this rung was missed.
+3. **No password.** Signing up with an SMS code does not create one. Set it at
    <https://www.pandaaiquant.com/personalcenter?id=1>.
-3. **Credentials ready.** `pandaai-cli login --phone <phone> --password <password>`, or omit both
-   flags for an interactive prompt that keeps the password out of shell history. Ask the user to run
-   it in their own terminal. Never invent or guess a phone number or password. If the user hands you
-   the credentials and your tooling permits it, run it for them; if your tooling refuses commands
-   containing a password, say so plainly and hand the command over rather than working around it.
+4. **Log in.** Recommend `pandaai-cli login` on its own, which prompts for both values and keeps the
+   password out of shell history; the flag form is `--phone 13800138000 --password yourpass`. Give a
+   concrete example rather than `<phone>` placeholders, which users type literally, angle brackets
+   and all. Ask the user to run it in their own terminal. Never invent or guess a phone number or
+   password. If the user hands you the credentials and your tooling permits it, run it for them; if
+   your tooling refuses commands containing a password, say so plainly and hand the command over
+   rather than working around it.
 
 Re-run preflight after the user reports back. Only continue when every line reads `ok`.
 
