@@ -26,6 +26,7 @@ DEFAULT_CONFIG = Path.home() / ".pandaai" / "config.yaml"
 REFS = Path(__file__).resolve().parent.parent / "references"
 
 OK, WARN, BAD = "ok  ", "note", "fail"
+WINDOWS = sys.platform == "win32"
 
 
 def say(status: str, message: str) -> None:
@@ -49,17 +50,20 @@ def check_cli() -> str | None:
         print("\n  Install it in an isolated environment so it stays on PATH for this project:")
         print("    uv tool install pandaai-cli        # or: pipx install pandaai-cli")
         print("\n  If you prefer a project virtualenv instead, remember to activate it every time:")
-        print("    uv venv && uv pip install pandaai-cli && source .venv/bin/activate")
+        activate = r".venv\Scripts\activate" if WINDOWS else "source .venv/bin/activate"
+        print(f"    uv venv && uv pip install pandaai-cli && {activate}")
         return None
 
     say(OK, f"pandaai-cli at {path}")
-    # The console script's shebang names the interpreter that will actually run the CLI.
-    try:
-        shebang = Path(path).read_text(errors="ignore").splitlines()[0]
-        if shebang.startswith("#!"):
-            say(OK, f"running under {shebang[2:].strip()}")
-    except (OSError, IndexError):
-        pass
+    # On Unix the console script is a text file whose shebang names the interpreter that will
+    # actually run the CLI. On Windows it is a binary launcher with nothing to read.
+    if not WINDOWS:
+        try:
+            shebang = Path(path).read_text(errors="ignore").splitlines()[0]
+            if shebang.startswith("#!"):
+                say(OK, f"running under {shebang[2:].strip()}")
+        except (OSError, IndexError):
+            pass
     return path
 
 
@@ -158,7 +162,8 @@ def main() -> int:
 
     if ready:
         print("\nReady. Read SKILL.md, then start with a short-window probe batch:")
-        print("  python3 scripts/batch.py candidates.txt --start <YYYYMMDD> --end <YYYYMMDD> --cycle 5")
+        print(f"  {sys.executable} scripts/batch.py candidates.txt"
+              " --start <YYYYMMDD> --end <YYYYMMDD> --cycle 5")
     return 0 if ready else 1
 
 

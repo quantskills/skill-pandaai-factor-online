@@ -161,10 +161,11 @@ pass unique ones positionally:
 **`factor_delete --pattern` 可能报 HTTP 422。** CLI 跨页收集匹配 id 时没有去重，而接口拒绝含重复项的列表
 （`工作流ID列表中不能有重复的ID`），结果一个都删不掉。自己从 `factor_list` 取 id 去重后按位置参数传：
 
+One line, no pipes, so it also runs in PowerShell. Change the `probe-` prefix to select your batch.
+一行，不用管道，PowerShell 里也能跑。把 `probe-` 换成你要删的那批因子的前缀。
+
 ```bash
-pandaai-cli --json factor_list --limit 100 --no-detail \
-  | python3 -c "import json,sys;print(' '.join(sorted({f['_id'] for f in json.load(sys.stdin)['factors'] if f['name'].startswith('probe-')})))" \
-  | xargs pandaai-cli factor_delete --yes
+python3 -c "import json,subprocess;out=subprocess.run(['pandaai-cli','--json','factor_list','--limit','100','--no-detail'],capture_output=True,text=True).stdout;ids=sorted({f['_id'] for f in json.loads(out)['factors'] if f['name'].startswith('probe-')});subprocess.run(['pandaai-cli','factor_delete','--yes',*ids])"
 ```
 
 **Some formulas fail to parse for non-obvious reasons.** A trailing `-1` on a division has been seen

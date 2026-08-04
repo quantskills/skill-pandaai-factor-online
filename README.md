@@ -38,13 +38,16 @@
 ```bash
 git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
-./install.sh                       # 装进本机检测到的全部 AI 工具
+python3 scripts/install.py         # 装进本机检测到的全部 AI 工具
 
 uv tool install pandaai-cli
 python3 scripts/bootstrap.py       # 检查环境并写好配置
 pandaai-cli login --phone <官网注册手机号> --password <官网登录密码>
 python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可用算子
 ```
+
+Windows 用 PowerShell，把 `python3` 换成 `python`。macOS 和 Linux 也可以用 `./install.sh`，
+它只是转发给同一个 Python 脚本。
 
 用 PandaAI 官网的账号。如果账号没有密码（只用短信验证码注册的就没有），
 到[个人中心](https://www.pandaaiquant.com/personalcenter?id=1)设置一个。
@@ -59,7 +62,7 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 ```
 
 不用写步骤。Agent clone 完会读到仓库根目录的 `AGENTS.md`，那里写着冷启动只做两件事：
-运行 `./install.sh`，然后按 SKILL 的**核心流程**走。核心流程是一段确定的契约，
+运行安装脚本，然后按 SKILL 的**核心流程**走。核心流程是一段确定的契约，
 所以不同工具的表现是一致的：先体检、缺什么补什么、把余额换算成还能跑多少次告诉你、
 确认调仓周期与回测区间与预算、给出候选清单等你点头，全程在你批准之前不花算力。
 
@@ -76,14 +79,18 @@ python3 scripts/bootstrap.py       # 这次会报出算力、因子数量和可�
 
 | 工具 | 命令 | 安装位置 |
 | --- | --- | --- |
-| Claude Code | `./install.sh claude` | `~/.claude/skills/skill-pandaai-factor-online` |
-| Cursor | `./install.sh cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
-| Codex | `./install.sh codex` | 在 `~/.codex/AGENTS.md` 追加指引 |
-| Gemini CLI | `./install.sh gemini` | 在 `~/.gemini/GEMINI.md` 追加指引 |
-| 单个项目 | `./install.sh project [目录]` | 项目内的技能目录 + `AGENTS.md` 指引 |
+| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/skill-pandaai-factor-online` |
+| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
+| Codex | `python3 scripts/install.py codex` | 在 `~/.codex/AGENTS.md` 追加指引 |
+| Gemini CLI | `python3 scripts/install.py gemini` | 在 `~/.gemini/GEMINI.md` 追加指引 |
+| 单个项目 | `python3 scripts/install.py project [目录]` | 项目内的技能目录 + `AGENTS.md` 指引 |
 
 Kimi Code、opencode、Aider 等读 `AGENTS.md` 的 Agent，通过项目内的指引识别该技能。
+
 默认用软链接安装，所以 `git pull` 一次就能更新所有工具；想固化快照就加 `--copy`。
+Windows 默认不允许建软链接（除非开了开发者模式），安装器会自动改成复制并提示你，
+那种情况下每次 `git pull` 之后要重跑一遍安装。
+安装器不会删除不是它自己建的东西：目标位置已经有真实目录时它会报出来并跳过，你确认后加 `--force` 才覆盖。
 
 ## 📦 目录结构
 
@@ -92,7 +99,7 @@ skill-pandaai-factor-online/
 ├── SKILL.md                  技能正文（英文，Agent 入口）
 ├── SKILL.zh-CN.md            中文镜像
 ├── AGENTS.md                 面向 AGENTS.md 类 Agent 的工作约定
-├── install.sh                跨工具安装脚本
+├── install.sh                install.py 的 Unix 便捷入口
 ├── agents/
 │   └── openai.yaml           Codex 风格适配
 ├── references/
@@ -104,6 +111,7 @@ skill-pandaai-factor-online/
 │   ├── playbook.md           算力预算、复盘表、证伪菜单
 │   └── source_boundary.md    数据、凭据与研究边界
 └── scripts/
+    ├── install.py            跨工具安装器（Windows / macOS / Linux）
     ├── bootstrap.py          体检：环境、配置、登录、算力、因子数量
     ├── batch.py              批量创建 / 运行 / 汇总，可续跑，按成本折算排序
     ├── analyze.py            用下载的 CSV 本地算相关性与换手率

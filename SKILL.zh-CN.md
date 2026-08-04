@@ -24,6 +24,7 @@ python3 scripts/bootstrap.py
 
 它会依次检查 Python 环境、CLI 安装、配置文件、登录状态、算力余额、账号已有的因子数量，
 以及随技能附带的字段与算子参考，并在任何一步不满足时打印出确切的下一条命令。
+这里的脚本在 Windows、macOS、Linux 上都能跑；Windows 上解释器是 `python`，不是 `python3`。
 
 **2. 按它的提示解决问题，然后停下来等用户。**
 

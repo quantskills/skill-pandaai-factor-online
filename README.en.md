@@ -44,13 +44,16 @@ platform.
 ```bash
 git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
-./install.sh                       # installs into every AI tool found on this machine
+python3 scripts/install.py         # installs into every AI tool found on this machine
 
 uv tool install pandaai-cli
 python3 scripts/bootstrap.py       # checks the environment and seeds the config
 pandaai-cli login --phone <phone> --password <password>
 python3 scripts/bootstrap.py       # now reports balance, factor count, and available operators
 ```
+
+On Windows use PowerShell and say `python` instead of `python3`. On macOS and Linux `./install.sh`
+also works; it just forwards to the same Python script.
 
 Use the PandaAI website account. If it has no password — SMS-code signups do not — set one at
 [the personal center](https://www.pandaaiquant.com/personalcenter?id=1). If your AI tool refuses to
@@ -67,7 +70,7 @@ Install the skill at https://github.com/quantskills/skill-pandaai-factor-online 
 ```
 
 No steps needed. Once the agent clones the repository it reads `AGENTS.md`, which says a cold start
-is exactly two actions: run `./install.sh`, then follow the skill's **Core Workflow**. That section
+is exactly two actions: run the installer, then follow the skill's **Core Workflow**. That section
 is an explicit contract, so the flow comes out the same across tools: preflight, fix what is
 missing, report the balance as a number of affordable runs, settle the rebalance cycle and backtest
 window and budget, then show a candidate list for approval — spending no credits before you say go.
@@ -85,15 +88,20 @@ How correlated are these factors with market cap?
 
 | Tool | Command | Where it lands |
 | --- | --- | --- |
-| Claude Code | `./install.sh claude` | `~/.claude/skills/skill-pandaai-factor-online` |
-| Cursor | `./install.sh cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
-| Codex | `./install.sh codex` | pointer appended to `~/.codex/AGENTS.md` |
-| Gemini CLI | `./install.sh gemini` | pointer appended to `~/.gemini/GEMINI.md` |
-| One project | `./install.sh project [DIR]` | project-local skill dirs plus an `AGENTS.md` pointer |
+| Claude Code | `python3 scripts/install.py claude` | `~/.claude/skills/skill-pandaai-factor-online` |
+| Cursor | `python3 scripts/install.py cursor` | `~/.cursor/skills/skill-pandaai-factor-online` |
+| Codex | `python3 scripts/install.py codex` | pointer appended to `~/.codex/AGENTS.md` |
+| Gemini CLI | `python3 scripts/install.py gemini` | pointer appended to `~/.gemini/GEMINI.md` |
+| One project | `python3 scripts/install.py project [DIR]` | project-local skill dirs plus an `AGENTS.md` pointer |
 
 Kimi Code, opencode, Aider, and other agents that read `AGENTS.md` pick the skill up from the
-project pointer. Installs are symlinks by default, so `git pull` updates every tool at once; pass
-`--copy` to vendor a snapshot instead.
+project pointer.
+
+Installs are symlinks by default, so `git pull` updates every tool at once; pass `--copy` to vendor
+a snapshot instead. Windows forbids symlinks unless Developer Mode is on, so there the installer
+falls back to copying and tells you — re-run it after each `git pull` in that case.
+The installer never deletes anything it did not create: if a real directory already sits at a
+target path it reports and skips it, and only `--force` overwrites.
 
 ## 📦 Layout
 
@@ -102,7 +110,7 @@ skill-pandaai-factor-online/
 ├── SKILL.md                  Skill body (English, agent entrypoint)
 ├── SKILL.zh-CN.md            Chinese mirror
 ├── AGENTS.md                 Working agreement for AGENTS.md-based agents
-├── install.sh                Cross-tool installer
+├── install.sh                Unix convenience wrapper around install.py
 ├── agents/
 │   └── openai.yaml           Codex-style adapter
 ├── references/
@@ -114,6 +122,7 @@ skill-pandaai-factor-online/
 │   ├── playbook.md           Credit budget, retrospective worksheet, falsification menu
 │   └── source_boundary.md    Data, credential, and research boundaries
 └── scripts/
+    ├── install.py            Cross-tool installer (Windows / macOS / Linux)
     ├── bootstrap.py          Preflight: environment, config, login, balance, factor count
     ├── batch.py              Batch create / run / tabulate, resumable, ranked net of cost
     ├── analyze.py            Local correlation and turnover from downloaded CSVs

@@ -14,10 +14,11 @@ reboot and silently removes the skill from every tool at once. If the current pa
 the repository first. Note the directory: the candidate list and batch state files belong there too,
 not in a temporary path.
 
-**2. Install.**
+**2. Install.** Use the Python installer; it is the only one that works on every platform. Say
+`python` instead of `python3` on Windows.
 
 ```bash
-./install.sh          # installs into the AI tools present on this machine
+python3 scripts/install.py          # installs into the AI tools present on this machine
 ```
 
 **3. Hand over.** Read [SKILL.md](SKILL.md) (Chinese: [SKILL.zh-CN.md](SKILL.zh-CN.md)) and follow
@@ -57,10 +58,10 @@ Non-negotiables when acting on this skill:
 静默摘掉。当前路径是易失位置就先把仓库挪走。记住这个目录：候选清单和批量断点文件也应该放在这里，
 不要放临时路径。
 
-**2. 安装。**
+**2. 安装。** 用 Python 安装器，它是唯一跨平台可用的。Windows 上把 `python3` 换成 `python`。
 
 ```bash
-./install.sh          # 装进本机存在的 AI 工具
+python3 scripts/install.py          # 装进本机存在的 AI 工具
 ```
 
 **3. 交接。** 读 [SKILL.zh-CN.md](SKILL.zh-CN.md)，从它的**核心流程**第 1 步开始照做。那一节就是开场脚本：

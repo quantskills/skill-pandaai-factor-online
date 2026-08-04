@@ -73,7 +73,8 @@ python3 scripts/bootstrap.py
 
 It checks the Python environment, the CLI install, the config file, login state, compute balance,
 the number of factors on the account, and the bundled field and operator references, printing the
-exact next command whenever a step is unsatisfied.
+exact next command whenever a step is unsatisfied. Every script here runs on Windows, macOS, and
+Linux; on Windows the interpreter is `python`, not `python3`.
 
 **2. Resolve whatever it flags, then stop and wait.**
 
