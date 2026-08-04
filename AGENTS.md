@@ -6,15 +6,22 @@ through `pandaai-cli`.
 ## Cold start
 
 If you have just cloned this repository and the user asked you to install the skill and start
-mining, that is the whole instruction — everything else is written down here. Do exactly two things,
-then hand control to the skill:
+mining, that is the whole instruction — everything else is written down here. Do exactly three
+things, then hand control to the skill:
+
+**1. Land somewhere persistent.** Installs are symlinks, so a clone under `/tmp` disappears on
+reboot and silently removes the skill from every tool at once. If the current path is volatile, move
+the repository first. Note the directory: the candidate list and batch state files belong there too,
+not in a temporary path.
+
+**2. Install.**
 
 ```bash
 ./install.sh          # installs into the AI tools present on this machine
 ```
 
-Then read [SKILL.md](SKILL.md) (Chinese: [SKILL.zh-CN.md](SKILL.zh-CN.md)) and follow its **Core
-Workflow** section from step 1. That section is the opening script: preflight, resolve what it
+**3. Hand over.** Read [SKILL.md](SKILL.md) (Chinese: [SKILL.zh-CN.md](SKILL.zh-CN.md)) and follow
+its **Core Workflow** section from step 1. That section is the opening script: preflight, resolve what it
 flags, report the balance as a number of affordable runs, settle the rebalance cycle and backtest
 window and budget with the user, then show a probe batch for approval. Do not improvise an order of
 your own, and do not spend compute credits before the user approves the batch.
@@ -44,13 +51,19 @@ Non-negotiables when acting on this skill:
 ## 冷启动
 
 如果你刚 clone 完本仓库，用户只说了「装上这个 skill，带我挖因子」，那句话就是全部指令——
-其余内容都写在这里了。只做两件事，然后把控制权交给技能：
+其余内容都写在这里了。只做三件事，然后把控制权交给技能：
+
+**1. 先落在一个持久目录。** 安装用的是软链接，clone 在 `/tmp` 下重启即消失，会同时把技能从所有工具里
+静默摘掉。当前路径是易失位置就先把仓库挪走。记住这个目录：候选清单和批量断点文件也应该放在这里，
+不要放临时路径。
+
+**2. 安装。**
 
 ```bash
 ./install.sh          # 装进本机存在的 AI 工具
 ```
 
-然后读 [SKILL.zh-CN.md](SKILL.zh-CN.md)，从它的**核心流程**第 1 步开始照做。那一节就是开场脚本：
+**3. 交接。** 读 [SKILL.zh-CN.md](SKILL.zh-CN.md)，从它的**核心流程**第 1 步开始照做。那一节就是开场脚本：
 体检、按提示补齐、把余额换算成还能跑多少次告诉用户、与用户确认调仓周期与回测区间与预算、
 给出试探清单等用户过目。不要自己另编顺序，用户批准清单之前不要花算力。
 

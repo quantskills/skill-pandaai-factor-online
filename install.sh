@@ -75,5 +75,16 @@ fi
 
 for t in "${targets[@]}"; do "install_$t"; done
 
+# Symlinks into a volatile directory break silently on reboot, taking the skill out of every tool
+# at once with no error anywhere.
+case "$SRC" in
+  /tmp/*|/private/tmp/*|/var/folders/*)
+    echo
+    echo "warning: this repository lives in $SRC, which the system clears periodically."
+    echo "         Move it somewhere persistent and re-run ./install.sh, or the symlinks will"
+    echo "         break silently."
+    ;;
+esac
+
 echo
-echo "Next: python3 $SRC/scripts/bootstrap.py && pandaai-cli login"
+echo "Next: python3 $SRC/scripts/bootstrap.py  (read-only, costs no compute credits)"

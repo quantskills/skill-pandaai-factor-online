@@ -64,7 +64,8 @@ without wasting compute credits.
 When a user invokes this skill for the first time in a session, follow this sequence before any
 mining work. Do not skip ahead to writing formulas, and do not spend a single run until step 3.
 
-**1. Preflight.** Run it, do not paraphrase it:
+**1. Preflight.** It is read-only — it queries `balance` and `factor_list` and costs no compute
+credits — so run it rather than paraphrasing what it would do:
 
 ```bash
 python3 scripts/bootstrap.py
@@ -111,7 +112,8 @@ doing once per machine.
 
 ## Output Contract
 
-Produce, and keep in the user's working directory rather than a temporary path:
+Produce, and keep in the persistent working directory settled at cold start rather than a
+temporary path:
 
 - `candidates.txt` — one line per candidate, `name ~ formula ~ direction`, including the ones you
   expect to fail, since the count is the multiple-testing denominator
