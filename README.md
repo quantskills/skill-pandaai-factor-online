@@ -12,8 +12,9 @@
 
 ## 📖 这是什么
 
-一个可移植的 Agent 技能，用于通过 `pandaai-cli` 在 [PandaAI](https://www.pandaaiquant.com) 平台
-挖掘量化因子。适配 Claude Code、Cursor、Codex、Kimi Code、Gemini CLI，以及任何读 `AGENTS.md` 的 Agent。
+一个可移植的 Agent 技能，用于通过 `pandaai-cli` 在
+[PandaAI](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/) 平台挖掘量化因子。
+适配 Claude Code、Cursor、Codex、Kimi Code、Gemini CLI，以及任何读 `AGENTS.md` 的 Agent。
 
 上手 PandaAI 有几个会实打实消耗时间和算力、而文档里查不到的坎：
 
@@ -29,9 +30,6 @@
 
 技能里内置了这些结论、348 个字段与 137 个算子的完整参考，以及一套研究流程，
 避免 Agent 把整个算力余额花在同一个想法的一百个变体上。
-
-姊妹仓库：[skill-factor-mining-pandaai](https://github.com/quantskills/skill-factor-mining-pandaai)
-负责从论文和研报里提取因子假设；本仓库负责在平台上把它们跑出来、评估并迭代。
 
 ## 🚀 快速开始
 

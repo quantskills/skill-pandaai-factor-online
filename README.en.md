@@ -14,8 +14,9 @@
 ## 📖 What this is
 
 A portable agent skill for mining quantitative factors on the
-[PandaAI](https://www.pandaaiquant.com) platform through `pandaai-cli`. Works with Claude Code,
-Cursor, Codex, Kimi Code, Gemini CLI, and any agent that reads `AGENTS.md`.
+[PandaAI](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/) platform through
+`pandaai-cli`. Works with Claude Code, Cursor, Codex, Kimi Code, Gemini CLI, and any agent that
+reads `AGENTS.md`.
 
 Getting started on PandaAI has a few sharp edges that cost real time and real compute credits, none
 of them documented:
@@ -33,11 +34,6 @@ of them documented:
 
 The skill carries those findings, a full reference for 348 fields and 137 operators, and a research
 loop that keeps an agent from spending a whole credit balance on a hundred variants of one idea.
-
-Sibling repository:
-[skill-factor-mining-pandaai](https://github.com/quantskills/skill-factor-mining-pandaai) extracts
-factor hypotheses from papers and reports; this one runs, evaluates, and iterates them on the
-platform.
 
 ## 🚀 Quick start
 
