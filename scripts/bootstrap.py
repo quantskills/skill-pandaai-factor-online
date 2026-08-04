@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""Preflight for PandaAI factor mining: environment, config, login state, and account status.
+
+Run this first, and again whenever something stops working. It checks in order:
+
+  1. Python version and which interpreter this project will use
+  2. whether pandaai-cli is installed, and where it came from
+  3. ~/.pandaai/config.yaml (pandaai-cli 0.1.x cannot create it on its own)
+  4. login state, compute balance, and how many factors the account already has
+  5. the bundled field and operator references
+
+Prints the exact next command whenever a step is not satisfied. Never prints credentials.
+"""
+
+import argparse
+import json
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+GATEWAY_URL = "https://www.pandaaiquant.com/pandaApi"
+PERSONAL_CENTER = "https://www.pandaaiquant.com/personalcenter?id=1"
+DEFAULT_CONFIG = Path.home() / ".pandaai" / "config.yaml"
+REFS = Path(__file__).resolve().parent.parent / "references"
+
+OK, WARN, BAD = "ok  ", "note", "fail"
+
+
+def say(status: str, message: str) -> None:
+    print(f"[{status}] {message}")
+
+
+def check_python() -> bool:
+    version = sys.version_info
+    say(OK if version >= (3, 10) else BAD,
+        f"python {version.major}.{version.minor}.{version.micro} at {sys.executable}")
+    if version < (3, 10):
+        say(BAD, "pandaai-cli needs Python 3.10 or newer")
+        return False
+    return True
+
+
+def check_cli() -> str | None:
+    path = shutil.which("pandaai-cli")
+    if not path:
+        say(BAD, "pandaai-cli not found on PATH")
+        print("\n  Install it in an isolated environment so it stays on PATH for this project:")
+        print("    uv tool install pandaai-cli        # or: pipx install pandaai-cli")
+        print("\n  If you prefer a project virtualenv instead, remember to activate it every time:")
+        print("    uv venv && uv pip install pandaai-cli && source .venv/bin/activate")
+        return None
+
+    say(OK, f"pandaai-cli at {path}")
+    # The console script's shebang names the interpreter that will actually run the CLI.
+    try:
+        shebang = Path(path).read_text(errors="ignore").splitlines()[0]
+        if shebang.startswith("#!"):
+            say(OK, f"running under {shebang[2:].strip()}")
+    except (OSError, IndexError):
+        pass
+    return path
+
+
+def check_config(path: Path, country_code: str) -> bool:
+    """Seed a minimal config if absent, because the CLI exits before login can create it."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"gateway_url: {GATEWAY_URL}\ncountry_code: '{country_code}'\n")
+        path.chmod(0o600)
+        say(OK, f"created {path} (pandaai-cli cannot create it itself)")
+        return False
+    text = path.read_text()
+    if "gateway_url" not in text:
+        path.write_text(f"gateway_url: {GATEWAY_URL}\n" + text)
+        say(OK, f"added gateway_url to {path}")
+    else:
+        say(OK, f"config present: {path}")
+    return bool(re.search(r"^token:\s*\S", text, re.M))
+
+
+def login_help() -> None:
+    print("\n  Log in with your PandaAI website account:")
+    print("    pandaai-cli login --phone <phone> --password <password>")
+    print("\n  Or omit both flags to be prompted, which keeps the password out of shell history.")
+    print(f"  No password, or forgot it? Set one at {PERSONAL_CENTER}")
+    print("\n  If your AI tool refuses to handle the password, run the command yourself in a")
+    print("  terminal (PowerShell on Windows). The token is saved to the config file, and the")
+    print("  agent can continue from there without ever seeing the credentials.")
+
+
+def cli_json(*args: str, timeout: int = 90) -> dict:
+    try:
+        proc = subprocess.run(["pandaai-cli", "--json", *args],
+                              capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"success": False, "error": {"message": str(exc)}}
+    try:
+        return json.loads(proc.stdout)
+    except ValueError:
+        return {"success": False, "error": {"message": (proc.stdout + proc.stderr).strip()[:200]}}
+
+
+def check_account() -> bool:
+    balance = cli_json("balance")
+    if not balance.get("success"):
+        say(BAD, f"balance query failed: {balance.get('error', {}).get('message', balance)}")
+        say(WARN, "the token may have expired; log in again")
+        return False
+    power = (balance.get("balance") or {}).get("computingPower")
+    say(OK, f"compute balance: {power}")
+    if isinstance(power, (int, float)) and power < 100:
+        say(WARN, f"that is about {int(power // 2)} runs left at roughly 2 credits each")
+
+    listing = cli_json("factor_list", "--limit", "1", "--no-detail")
+    if listing.get("success"):
+        say(OK, f"factors already on this account: {listing.get('total')}")
+    return True
+
+
+def check_references() -> None:
+    for name, label in (("fields.md", "fields"), ("operators.md", "operators")):
+        path = REFS / name
+        if not path.exists():
+            say(WARN, f"{path} missing")
+            continue
+        count = len(re.findall(r"^\| `", path.read_text(), re.M))
+        say(OK, f"{count} {label} available in references/{name}")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    ap.add_argument("--country-code", default="86")
+    args = ap.parse_args()
+
+    if not check_python():
+        return 1
+    if not check_cli():
+        return 1
+
+    logged_in = check_config(args.config, args.country_code)
+    if not logged_in:
+        say(WARN, "not logged in")
+        login_help()
+        return 0
+
+    ready = check_account()
+    check_references()
+
+    if ready:
+        print("\nReady. Read SKILL.md, then start with a short-window probe batch:")
+        print("  python3 scripts/batch.py candidates.txt --start <YYYYMMDD> --end <YYYYMMDD> --cycle 5")
+    return 0 if ready else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
