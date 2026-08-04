@@ -37,14 +37,30 @@ loop that keeps an agent from spending a whole credit balance on a hundred varia
 
 ## 🚀 Quick start
 
-The only prerequisite is Python 3.10 or newer. Check first:
+### One prompt (recommended)
 
-```bash
-python3 --version
+Paste this into Claude Code, Cursor, Codex, or Kimi Code:
+
+```text
+Install the skill at https://github.com/quantskills/skill-pandaai-factor-online, sign me up for the PandaAI factor competition, and start mining factors.
 ```
 
-**No Python, or too old?** `uv` is the shortest way out. It needs no Python itself, and installs
-both Python and the PandaAI CLI:
+Nothing else is needed. Once the agent clones the repository it reads `AGENTS.md`, where a cold
+start is three actions: land the repository somewhere permanent, run the installer, then follow the
+skill's **Core Workflow**. That section is an explicit contract, so the flow comes out the same
+across tools.
+
+It opens with a preflight that costs no credits and closes each gap it finds — Python version, CLI
+install, account registration, competition entry, account password — then walks you through login,
+which you type yourself, since the agent never handles the password. Once preflight is green it
+converts the credit balance into a number of affordable runs, settles the rebalance cycle, backtest
+window and budget with you, and shows a candidate list for approval. **No credits are spent before
+you say go.**
+
+### Manual install
+
+The only prerequisite is Python 3.10 or newer. Without it, `uv` is the shortest way out, and needs
+no Python of its own:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh                  # macOS / Linux
@@ -54,67 +70,40 @@ uv python install 3.12
 uv tool install pandaai-cli
 ```
 
-Without uv: get Python from [python.org](https://www.python.org/downloads/), or
-`brew install python` (macOS), `sudo apt install python3` (Ubuntu),
-`winget install Python.Python.3.12` (Windows). For the CLI, `pipx install pandaai-cli` works, and
-`pip install --user pandaai-cli` is the fallback — whether that lands on PATH depends on how Python
-was installed, and preflight will tell you.
-
-**Once Python is ready:**
+Without uv: get Python from [python.org](https://www.python.org/downloads/),
+`brew install python`, `sudo apt install python3`, or `winget install Python.Python.3.12`. For the
+CLI, `pipx install pandaai-cli` works and `pip install --user pandaai-cli` is the fallback — whether
+that lands on PATH depends on how Python was installed, and preflight will tell you.
 
 ```bash
 # Clone somewhere permanent. Installs are symlinks, so a clone under /tmp silently
 # removes the skill from every AI tool the next time the system clears it.
 git clone https://github.com/quantskills/skill-pandaai-factor-online.git
 cd skill-pandaai-factor-online
-python3 scripts/install.py         # installs into every AI tool found on this machine
-
-python3 scripts/bootstrap.py       # checks the environment, seeds the config, names what is missing
-pandaai-cli login                  # prompts for phone and password
-python3 scripts/bootstrap.py       # now reports balance, factor count, and available operators
+python3 scripts/install.py     # installs into every AI tool found on this machine
+python3 scripts/bootstrap.py   # preflight: environment, config, login state, balance, factor count
 ```
 
 On Windows use PowerShell and say `python` instead of `python3`. On macOS and Linux `./install.sh`
-also works; it forwards to the same Python script, and tells you how to get Python when there is
-none.
+also works; it forwards to the same Python script and explains how to get Python when there is none.
 
-Log in with the PandaAI website account. Without one, register with a phone number at
-[the website](https://www.pandaaiquant.com/login) and enter the
-[competition](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/) — compute credits are
-granted on entry. If the account has no password, which SMS-code signups do not, set one at
-[the personal center](https://www.pandaaiquant.com/personalcenter?id=1). If your AI tool refuses to
-run a command containing a password, run it yourself in a terminal; the token is saved to the config
-file and the agent continues from there.
+### Account and login
 
-### One prompt to start
+Compute credits are granted on competition entry, so **an account that registered but never entered
+logs in fine and cannot run a single factor**. Work through these five in order:
 
-Skip the manual install: paste this single line into your AI tool (Claude Code, Cursor, Codex, and
-Kimi Code all work).
+1. Register with a phone number at [the website](https://www.pandaaiquant.com/login).
+2. Enter the [competition](https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/) to
+   receive credits.
+3. SMS-code signups have no password; set one at
+   [the personal center](https://www.pandaaiquant.com/personalcenter?id=1).
+4. Run `pandaai-cli login`, which prompts for the phone and password.
+5. Run `python3 scripts/bootstrap.py` again — it now reports balance, factor count, and the
+   available operators.
 
-```text
-Install the skill at https://github.com/quantskills/skill-pandaai-factor-online, sign me up for the PandaAI factor competition, and start mining factors.
-```
-
-No steps needed. Once the agent clones the repository it reads `AGENTS.md`, which says a cold start
-is exactly two actions: run the installer, then follow the skill's **Core Workflow**. That section
-is an explicit contract, so the flow comes out the same across tools.
-
-It opens with a read-only preflight and fixes whatever that flags: a download link if Python is too
-old, an install command if `pandaai-cli` is missing, a registration link and the competition entry
-link if there is no account yet, the personal-center link if the account has no password, and only
-then the login command — which you type yourself, since the agent never handles the password. Once
-preflight is green it converts the credit balance into a number of affordable runs, settles the
-rebalance cycle and backtest window and budget with you, and shows a candidate list for approval. No
-credits are spent before you say go.
-
-Everyday prompts once installed:
-
-```text
-Check my PandaAI environment and credit balance, then start mining
-Mine a batch of reversal factors at a 5-day rebalance over 2023-2025, ranked net of turnover cost
-Validate these candidates out of sample on the earlier three-year window
-How correlated are these factors with market cap?
-```
+If your AI tool refuses to run a command containing a password, run step 4 yourself in a terminal.
+The token is saved to the config file and the agent continues from an authenticated state without
+ever touching the credentials.
 
 ### Install per tool
 
@@ -129,11 +118,20 @@ How correlated are these factors with market cap?
 Kimi Code, opencode, Aider, and other agents that read `AGENTS.md` pick the skill up from the
 project pointer.
 
-Installs are symlinks by default, so `git pull` updates every tool at once; pass `--copy` to vendor
-a snapshot instead. Windows forbids symlinks unless Developer Mode is on, so there the installer
-falls back to copying and tells you — re-run it after each `git pull` in that case.
-The installer never deletes anything it did not create: if a real directory already sits at a
-target path it reports and skips it, and only `--force` overwrites.
+Installs are symlinks by default, so `git pull` updates every tool at once; `--copy` vendors a
+snapshot instead. Windows forbids symlinks unless Developer Mode is on, so there the installer falls
+back to copying and says so — re-run it after each `git pull` in that case. The installer never
+deletes anything it did not create: a real directory already sitting at a target path is reported
+and skipped, and only `--force` overwrites.
+
+### Everyday prompts
+
+```text
+Check my PandaAI environment and credit balance, then start mining
+Mine a batch of reversal factors at a 5-day rebalance over 2023-2025, ranked net of turnover cost
+Validate these candidates out of sample on the earlier three-year window
+How correlated are these factors with market cap?
+```
 
 ## 📦 Layout
 
@@ -169,11 +167,27 @@ The Python scripts need only the standard library.
 | Constraint | Detail |
 | --- | --- |
 | 🔐 Credentials belong to the user | The user runs the login command; never print or commit the config file, token, or uid |
-| 💰 Every run costs credits | Check `balance`, validate formulas on a short window, batch the rest |
+| 💰 Every run costs 5 credits | Creating a factor is free; check `balance`, validate formulas on a short window, batch the rest |
 | 📅 Three-year backtest cap | Out-of-sample validation needs a second factor object, not a wider range |
 | 📊 Judge on net long-side excess | The long-short headline is not the conclusion; convert turnover to an annual cost first |
 | 🧪 Statistical discipline | Keep every candidate tested, failures included, as the multiple-testing denominator |
 | 🚫 Description, not recommendation | Research structure and factual summaries only, never investment advice |
+
+## 🛠 Development and self-test
+
+Run the offline self-test after changing anything under `scripts/`. No network, no credits:
+
+```bash
+python3 scripts/selftest.py
+```
+
+It covers resume fingerprints, the no-silent-retry rule, budget caps, result validation and the
+statistics, and where a Python 3.9 is available it runs one for real, confirming the preflight
+explains itself instead of crashing.
+
+The ` ```json qsh-form ` block in SKILL.md declares this skill's custom run form on quantskillhub:
+stage, backtest window, rebalance cycle and round-trip cost are assembled straight into the prompt.
+CI validates it on push; locally, run `node scripts/validate-qsh-form.mjs SKILL.md`.
 
 ## ⚠️ Disclaimer
 
@@ -192,14 +206,3 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
   <br>
   <sub>Scan to join the PandaAI community for QUANTSKILLS skills, agent workflows, and quant research practice.</sub>
 </div>
-
-## qsh-form (optional enhancement)
-
-The ` ```json qsh-form ` block in SKILL.md declares this skill's custom run form on quantskillhub:
-stage, backtest window, rebalance cycle, and round-trip cost are assembled straight into the prompt.
-CI validates it on push; locally, run `node scripts/validate-qsh-form.mjs SKILL.md`.
-
-## Self-test
-
-Run it after changing anything under `scripts/`. No network, no compute credits:
-`python3 scripts/selftest.py`.
