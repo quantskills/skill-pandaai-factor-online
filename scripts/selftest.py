@@ -347,6 +347,8 @@ class Environment(unittest.TestCase):
         python39 = which39()
         if not python39:
             self.skipTest("no Python 3.9 available; `uv python install 3.9` to run this")
+        if not (SCRIPTS / "install.py").exists():
+            self.skipTest("install.py ships with the repository, not with the skill package")
         target = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, target)
         proc = subprocess.run([python39, str(SCRIPTS / "install.py"), "project", target],
