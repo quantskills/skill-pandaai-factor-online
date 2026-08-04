@@ -26,6 +26,12 @@ python3 scripts/bootstrap.py
 以及随技能附带的字段与算子参考，并在任何一步不满足时打印出确切的下一条命令。
 这里的脚本在 Windows、macOS、Linux 上都能跑；Windows 上解释器是 `python`，不是 `python3`。
 
+本文里的所有路径都相对于**存放本文件的那个目录**——通常是
+`~/.claude/skills/skill-pandaai-factor-online`、`~/.cursor/skills/...`，或者压缩包解压到的位置。
+Agent 很少正好从那里启动，所以请以该目录为基准解析这些路径，而不是当前工作目录。
+产出的文件则相反：`candidates.txt` 和它的断点文件要放在用户自己的工作目录里，
+不要放进技能目录，那里重装一次就被覆盖了。
+
 **2. 按它的提示解决问题，然后停下来等用户。**
 
 | 体检报什么 | 怎么做 |

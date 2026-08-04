@@ -77,6 +77,13 @@ the number of factors on the account, and the bundled field and operator referen
 exact next command whenever a step is unsatisfied. Every script here runs on Windows, macOS, and
 Linux; on Windows the interpreter is `python`, not `python3`.
 
+Every path in this document is relative to the directory holding this file — typically
+`~/.claude/skills/skill-pandaai-factor-online`, `~/.cursor/skills/...`, or wherever the archive was
+unpacked. An agent is rarely started there, so resolve these paths against that directory rather
+than the current working directory. The files you produce go the other way: keep `candidates.txt`
+and its state file in the user's own working directory, not inside the skill, where reinstalling
+would overwrite them.
+
 **2. Resolve whatever it flags, then stop and wait.**
 
 | Preflight says | Do this |
