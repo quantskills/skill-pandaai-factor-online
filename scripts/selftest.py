@@ -225,7 +225,7 @@ class BatchRun(unittest.TestCase):
         self.assertEqual(self.runs(), 1)
 
     def test_a_new_window_stops_the_batch_too(self):
-        # This is the out-of-sample path: same candidates, earlier three years.
+        # This is the out-of-sample path: same candidates, a reserved earlier window.
         self.file.write_text("a ~ BIAS(CLOSE,5) ~ 0\n", encoding="utf-8")
         self.main()
         self.assertEqual(self.main("--start", "20200101", "--end", "20201231"), 1)

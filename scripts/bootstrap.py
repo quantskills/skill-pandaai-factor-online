@@ -25,6 +25,7 @@ from pathlib import Path
 
 GATEWAY_URL = "https://www.pandaaiquant.com/pandaApi"
 OBSERVED_RUN_COST = 2
+REFERENCE_CLI_VERSION = "0.1.4"
 LOGIN_PAGE = "https://www.pandaaiquant.com/login"
 COMPETITION = "https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/"
 PERSONAL_CENTER = "https://www.pandaaiquant.com/personalcenter?id=1"
@@ -97,8 +98,9 @@ def report_cli_version(interpreter: str) -> None:
         return
     version = proc.stdout.strip()
     if version:
-        say(OK, f"pandaai-cli {version} (references/cli.md is written against 0.1.3;"
-                " `uv tool upgrade pandaai-cli` if yours is older)")
+        status = OK if version == REFERENCE_CLI_VERSION else WARN
+        say(status, f"pandaai-cli {version} (skill reference target: {REFERENCE_CLI_VERSION};"
+                " compare help and JSON shapes before accepting a different version)")
 
 
 def check_config(path: Path, country_code: str) -> bool:
@@ -158,8 +160,8 @@ def check_account() -> bool:
     power = (balance.get("balance") or {}).get("computingPower")
     say(OK, f"compute balance: {power}")
     if isinstance(power, (int, float)):
-        # Observed in a successful 0.1.3 Python run on 2026-08-05. The server settles billing, so
-        # treat this as planning guidance and confirm it from the returned billing object.
+        # Historical planning observation from a successful 0.1.3 Python run on 2026-08-05.
+        # The server settles billing, so confirm the actual charge from the completed run.
         say(OK if power >= 50 else WARN,
             f"that is about {int(power // OBSERVED_RUN_COST)} runs left at "
             f"{OBSERVED_RUN_COST} credits each (verify billing after a run)")

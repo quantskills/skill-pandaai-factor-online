@@ -1,10 +1,10 @@
 # pandaai-cli Reference / 命令参考
 
-Verified against pandaai-cli 0.1.3 (2026-08-04). `pandaai-cli` is a third-party package that changes
+Targeted at pandaai-cli 0.1.4 (verify the executable in the current environment). `pandaai-cli` is a third-party package that changes
 flags between patch releases — 0.1.2 renamed `factor_list --offset` to `--page` — so check your own
 version before relying on any flag, and note that `uv tool install` pins the version it resolved on
 the day you installed it. `uv tool upgrade pandaai-cli` moves it.
-对照 pandaai-cli 0.1.3 核对（2026-08-04）。`pandaai-cli` 是第三方包，补丁版本之间会改参数——
+目标对照 pandaai-cli 0.1.4（请在当前执行环境核对实际可执行版本）。`pandaai-cli` 是第三方包，补丁版本之间会改参数——
 0.1.2 把 `factor_list --offset` 改成了 `--page`——所以依赖任何参数前先确认本机版本。
 另外 `uv tool install` 会钉死安装当天解析到的版本，要升级用 `uv tool upgrade pandaai-cli`。
 
@@ -75,9 +75,9 @@ pandaai-cli --json factor_create (--formula F | --code C | --file PATH)
 | `--adjustment-cycle` | 1 | Rebalance cycle, 1–10 days / 调仓周期 1–10 天 |
 | `--factor-direction` | 1 | 1 = higher is better, 0 = lower is better / 1 正向，0 负向 |
 
-Groups are fixed at 10 and the universe is fixed at 沪深全A. A window longer than three years is
+Groups are fixed at 10 and the universe is fixed at 沪深全A. A window longer than ten years is
 rejected at creation.
-分组固定 10 组，股票池固定沪深全A。超过三年的区间在创建时即被拒绝。
+分组固定 10 组，股票池固定沪深全A。超过十年的区间在创建时即被拒绝。
 
 Returns `{"success": true, "factor_id": "..."}`.
 
@@ -159,21 +159,21 @@ run `scripts/bootstrap.py`) with `gateway_url` and `country_code`, then log in.
 `CONFIG_ERROR: 配置文件不存在` 并退出。而 `login` 恰恰是创建该文件的命令，于是永远排不到它执行。
 先手工写入 `gateway_url` 与 `country_code`（或运行 `scripts/bootstrap.py`），再登录。
 
-**`--json` silently disables `--download`.** Still true on 0.1.3. The CSV write happens only on the
+**`--json` silently disables `--download`.** Observed on 0.1.3; re-verify on 0.1.4 before relying on it. The CSV write happens only on the
 human-readable code path, so `factor_result <id> --download --json` prints JSON and writes nothing.
-Drop `--json` when you want files — and expect a large one: a three-year run over 沪深全A came to
+Drop `--json` when you want files — and expect a large one: a long-window run over 沪深全A can exceed
 139 MB, which is why `scripts/analyze.py` samples dates instead of loading everything.
-**`--json` 会静默关闭 `--download`。** 0.1.3 上依然如此。写 CSV 只发生在人类可读的分支上，所以
+**`--json` 会静默关闭 `--download`。** 0.1.3 实测如此；升级到 0.1.4 后先复核。写 CSV 只发生在人类可读的分支上，所以
 `factor_result <id> --download --json` 只打印 JSON，不落盘。要文件就别加 `--json`——
-并且文件很大：三年沪深全A 实测 139 MB，这也是 `scripts/analyze.py` 抽样日期而不是整份读入的原因。
+并且文件很大：长窗口沪深全A结果可能超过 139 MB，这也是 `scripts/analyze.py` 抽样日期而不是整份读入的原因。
 
 **`factor_delete --pattern` does not work, and lies about why.** On 0.1.1 it returned HTTP 422
 because the CLI collected ids across pages without de-duplicating them
-(`工作流ID列表中不能有重复的ID`); on 0.1.3 it returns `LOGIN_REQUIRED` on a session where every other
+(`工作流ID列表中不能有重复的ID`); on 0.1.3 it returned `LOGIN_REQUIRED` on a session where every other
 command authenticates fine. Deleting by id works, though `--json` makes it print nothing at all.
 Collect the ids yourself from `factor_list` and pass them positionally:
 **`factor_delete --pattern` 不能用，而且给的理由是假的。** 0.1.1 上它报 HTTP 422，因为 CLI 跨页收集 id
-时没去重（`工作流ID列表中不能有重复的ID`）；0.1.3 上它报 `LOGIN_REQUIRED`，而同一会话里其他命令的
+时没去重（`工作流ID列表中不能有重复的ID`）；0.1.3 实测它报 `LOGIN_REQUIRED`，而同一会话里其他命令的
 鉴权都正常。按 id 删除是好用的，只是加了 `--json` 就什么都不打印。自己从 `factor_list` 取 id 按位置传：
 
 One line, no pipes, so it also runs in PowerShell. Change the `probe-` prefix to select your batch.
@@ -183,11 +183,11 @@ One line, no pipes, so it also runs in PowerShell. Change the `probe-` prefix to
 python3 -c "import json,subprocess;out=subprocess.run(['pandaai-cli','--json','factor_list','--limit','100','--no-detail'],capture_output=True,text=True).stdout;ids=sorted({f['_id'] for f in json.loads(out)['factors'] if f['name'].startswith('probe-')});subprocess.run(['pandaai-cli','factor_delete','--yes',*ids])"
 ```
 
-**`factor_update` dropped parameters before 0.1.3.** On 0.1.1, changing `--name` and
+**`factor_update` dropped parameters before 0.1.3.** Historical behavior: on 0.1.1, changing `--name` and
 `--factor-direction` in one call applied only one of them. Fixed as of 0.1.3, where both take
 effect. On an older CLI, issue one change per call and confirm with `factor_info` before spending a
 run.
-**`factor_update` 在 0.1.3 之前会丢参数。** 0.1.1 上同时改 `--name` 和 `--factor-direction` 只有一个生效。
+**`factor_update` 在 0.1.3 之前会丢参数。** 历史行为：0.1.1 上同时改 `--name` 和 `--factor-direction` 只有一个生效。
 0.1.3 已修复，两个都会生效。CLI 版本较旧时，一次只改一项，花算力运行前用 `factor_info` 确认。
 
 **Some formulas fail to parse for non-obvious reasons.** A trailing `-1` on a division has been seen
