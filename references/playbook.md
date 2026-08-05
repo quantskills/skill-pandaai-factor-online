@@ -100,7 +100,7 @@ Because of the ten-year cap, this means re-creating survivors as new factor obje
 non-overlapping range and comparing sign and magnitude. Decide the reserved range before you look at
 it. A survivor that flips sign out of sample is dead, not "regime-dependent".
 
-受十年上限限制，这意味着把幸存者在预留的不重叠区间上重建为新的因子对象，然后对比符号和幅度。
+受服务端实际上限限制（CLI 0.1.4 的十年能力尚未生效），这意味着把幸存者在预留的不重叠区间上重建为新的因子对象，然后对比符号和幅度。
 预留区间要在看它之前就定好。样本外符号反转的幸存者是死的，不是「依赖风格周期」。
 
 ## Batch file format / 批量文件格式
