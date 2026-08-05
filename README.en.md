@@ -29,7 +29,7 @@ of them documented:
   `--factor-direction` rather than the label. Read the wrong end and every conclusion inverts.
 - The platform headlines a long-short annualized return, which assumes a short leg A-share
   participants cannot build, and reports turnover separately instead of folding it into returns.
-- Backtests are capped at three years, which makes in-sample overfitting easy and out-of-sample
+- Backtests are capped at ten years; long samples can still overfit, so out-of-sample
   validation an explicit extra step rather than a wider date range.
 
 The skill carries those findings, a full reference for 348 fields and 137 operators, and a research
@@ -129,7 +129,7 @@ and skipped, and only `--force` overwrites.
 ```text
 Check my PandaAI environment and credit balance, then start mining
 Mine a batch of reversal factors at a 5-day rebalance over 2023-2025, ranked net of turnover cost
-Validate these candidates out of sample on the earlier three-year window
+Validate these candidates out of sample on the earlier reserved non-overlapping window
 How correlated are these factors with market cap?
 ```
 

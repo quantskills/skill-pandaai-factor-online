@@ -17,7 +17,7 @@ because the failure mode is spending everything on stage 1.
 | Probe / 试探 | 40% | Short window, wide coverage of hypotheses / 短区间，广撒网测假设 |
 | Full window / 全区间 | 30% | Survivors only / 只跑幸存者 |
 | Falsification / 证伪 | 20% | Variants that could break the finding / 可能推翻结论的变体 |
-| Out-of-sample / 样本外 | 10% | Earlier three-year range / 更早的三年区间 |
+| Out-of-sample / 样本外 | 10% | Reserved non-overlapping range / 预留的不重叠区间 |
 
 `pandaai-cli --json balance` before and after each batch; a batch that costs more than expected
 usually means silent retries. Wait a couple of minutes before the second reading — the deduction
@@ -85,7 +85,7 @@ For a finding to earn a full-window run, pick at least one and test it.
 | Test / 测试 | How / 做法 |
 |---|---|
 | Size contamination / 规模污染 | Exclude the smallest 20% by market cap and re-run / 剔除市值最小 20% 后重跑 |
-| Regime dependence / 风格依赖 | Split by calendar year, check all three / 按自然年拆开，三年都看 |
+| Regime dependence / 风格依赖 | Split by calendar year, check the full reserved span / 按自然年拆开，覆盖完整预留区间 |
 | Cycle sensitivity / 周期敏感 | Re-run at a different `--adjustment-cycle` / 换调仓周期重跑 |
 | Window arbitrariness / 窗口任意性 | Vary N by ±50%; a cliff means overfitting / N 变动 ±50%，出现悬崖就是过拟合 |
 | Redundancy / 冗余 | Spearman correlation against existing factors / 与已有因子做 Spearman 相关 |
@@ -96,12 +96,12 @@ is a fitted artifact.
 
 ## Stage 4: out-of-sample / 第四阶段：样本外
 
-Because of the three-year cap, this means re-creating survivors as new factor objects over an
-earlier three-year range and comparing sign and magnitude. Decide the earlier range before you look
-at it. A survivor that flips sign out of sample is dead, not "regime-dependent".
+Because of the ten-year cap, this means re-creating survivors as new factor objects over a reserved
+non-overlapping range and comparing sign and magnitude. Decide the reserved range before you look at
+it. A survivor that flips sign out of sample is dead, not "regime-dependent".
 
-受三年上限限制，这意味着把幸存者在更早的三年区间上重建为新的因子对象，然后对比符号和幅度。
-更早的区间要在看它之前就定好。样本外符号反转的幸存者是死的，不是「依赖风格周期」。
+受十年上限限制，这意味着把幸存者在预留的不重叠区间上重建为新的因子对象，然后对比符号和幅度。
+预留区间要在看它之前就定好。样本外符号反转的幸存者是死的，不是「依赖风格周期」。
 
 ## Batch file format / 批量文件格式
 

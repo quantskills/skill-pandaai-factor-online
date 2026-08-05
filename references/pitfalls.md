@@ -63,12 +63,12 @@ wrong end and monotonicity looks inverted and excess return flips sign. Confirm 
 
 ## 5. Warm-up period inside the window / 窗口内的预热期
 
-A 250-day lookback at the start of a three-year window has no history to work with, so the first
+A 250-day lookback at the start of a long window has no history to work with, so the first
 year or so of factor values may be missing or unstable. The backtest still reports a number for the
 whole window. Long-window factors are effectively evaluated on less data than short-window ones,
 which makes their statistics less comparable than they appear.
 
-三年窗口开头的 250 日回看没有历史可用，因此前一年左右的因子值可能缺失或不稳定，而回测仍会给出整段的数字。
+长窗口开头的 250 日回看没有历史可用，因此前一段的因子值可能缺失或不稳定，而回测仍会给出整段的数字。
 长窗口因子实际被评估的数据量少于短窗口因子，两者的统计量没有表面上那么可比。
 
 ## 6. Fundamental fields are step functions / 基本面字段是阶梯函数
@@ -137,20 +137,20 @@ buy-and-sell is 0.6%; slippage on small caps can dominate the rest.
 The reported `turnoverRate` is the share of the held top/bottom 10% portfolio replaced per rebalance.
 报告中的 `turnoverRate` 是每次调仓被替换掉的前10%或后10%等权组合持仓比例。
 
-## 11. The three-year cap shapes your design / 三年上限决定你的设计
+## 11. The ten-year cap shapes your design / 十年上限决定你的设计
 
-You cannot run a single six-year backtest. Out-of-sample validation therefore means creating a
-second factor object over an earlier three-year range and comparing. Do not skip it because it is
-inconvenient — the cap is exactly why in-sample overfitting is easy here.
+You cannot run a single backtest longer than ten years. Out-of-sample validation therefore means creating a
+second factor object over a reserved non-overlapping range and comparing. Do not skip it because the longer cap
+can make in-sample overfitting look safer than it is.
 
-你没法跑一个六年的回测。所以样本外验证意味着在更早的三年区间上再建一个因子对象然后对比。
-不要因为麻烦就跳过——正是这个上限让样本内过拟合在这里格外容易。
+单次回测不能超过十年。所以样本外验证意味着在预留的不重叠区间上再建一个因子对象然后对比。
+不要因为窗口变长就跳过——长样本仍然可能被风格周期和选择偏差污染。
 
-## 12. Regime dependence within three years / 三年内的风格切换
+## 12. Regime dependence within ten years / 十年内的风格切换
 
-Three years of A-share data can be dominated by one or two style regimes. A factor that is flat for
-two years and spectacular for six months has one observation, not three years of evidence. Always
+Ten years of A-share data can still be dominated by a few style regimes. A factor that is flat for
+most of the sample and spectacular for six months has one observation, not ten years of evidence. Always
 break performance down by calendar year before believing a headline number.
 
-三年的 A 股数据可能被一两种风格周期主导。一个两年平淡、半年爆发的因子，是一个观测，不是三年的证据。
+十年的 A 股数据仍可能被几种风格周期主导。一个大部分时间平淡、半年爆发的因子，是一个观测，不是十年的证据。
 相信头条数字之前，先按自然年拆开看。

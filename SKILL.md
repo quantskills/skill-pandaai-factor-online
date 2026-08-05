@@ -39,16 +39,16 @@ quantSkills:
         { "value": "probe", "label": "试探：短区间广撒网" },
         { "value": "full", "label": "全区间：只跑幸存者" },
         { "value": "falsify", "label": "证伪：变体与分年拆解" },
-        { "value": "oos", "label": "样本外：更早三年重建" },
+        { "value": "oos", "label": "样本外：预留区间重建" },
         { "value": "review", "label": "复盘：相关性与换手成本" }
       ]
     },
     { "key": "start_date", "type": "date", "label": "回测开始日期" },
-    { "key": "end_date", "type": "date", "label": "回测结束日期（区间不得超过 3 年）" },
+    { "key": "end_date", "type": "date", "label": "回测结束日期（区间不得超过 10 年）" },
     { "key": "cycle", "type": "number", "label": "调仓周期（1-10 个交易日）" },
     { "key": "round_trip", "type": "number", "label": "双向交易成本（小数，如 0.003）" }
   ],
-  "prompt_template": "任务：{{task}}\n阶段：{{stage}}\n回测区间：{{start_date}} 至 {{end_date}}（不得超过 3 年）\n调仓周期：{{cycle}} 日\n双向成本：{{round_trip}}\n附件：{{#attachments}}\n\n先运行 scripts/bootstrap.py 确认环境与算力，再按 SKILL.md 的流程执行；候选排序用扣除换手成本后的多头分组超额收益。"
+  "prompt_template": "任务：{{task}}\n阶段：{{stage}}\n回测区间：{{start_date}} 至 {{end_date}}（区间不得超过 10 年）\n调仓周期：{{cycle}} 日\n双向成本：{{round_trip}}\n附件：{{#attachments}}\n\n先检查 CLI 版本，再运行 scripts/bootstrap.py 确认环境与算力；按 SKILL.md 流程执行，并按用户选择的目标排序候选。"
 }
 ```
 
@@ -128,7 +128,7 @@ already on the account.
 
 - **Rebalance cycle** (1–10 days). If the competition locks it at submission, it must be decided now
   and every candidate evaluated at that cycle.
-- **Backtest window**, at most three years, plus which earlier window is reserved for out-of-sample
+- **Backtest window**, at most ten years, plus which non-overlapping window is reserved for out-of-sample
   validation and will not be looked at during mining.
 - **Batch budget**, how many runs this session may spend.
 
@@ -283,7 +283,7 @@ and ten chart series. Full flag reference and known CLI bugs: [references/cli.md
 
 | Constraint | Value |
 |---|---|
-| Backtest window | **3 years maximum**, longer ranges are rejected at creation |
+| Backtest window | **10 years maximum**, longer ranges are rejected at creation |
 | Groups | Fixed at 10 |
 | Universe | Fixed at 沪深全A |
 | Rebalance cycle | 1–10 days, set at creation |
@@ -308,7 +308,7 @@ instead. Read [references/pitfalls.md](references/pitfalls.md) before writing an
 lookback window — it also covers look-ahead operators, cross-sectional versus time-series functions,
 the direction flag, and why nearly everything correlates with market cap.
 
-**Validate cheaply.** Before a 3-year run, create the same formula over a ~3-month window and run it
+**Validate cheaply.** Before a long-window run, create the same definition over a ~3-month window and run it
 once. Syntax and field errors surface at the same credit cost but a fraction of the wall-clock time:
 what a short window buys is the wait, not the credits.
 
@@ -398,8 +398,8 @@ Worksheet and falsification menu: [references/playbook.md](references/playbook.m
   candidates a nominal p < 0.05 means nothing; use p < 0.05/N as a rough filter. `batch.py` prints
   the threshold, but N defaults to the current file — pass `--hypotheses` with the running total
   once a study spans several files, or the threshold resets with every batch.
-- **Hold out data.** Under the 3-year cap, out-of-sample means re-creating survivors as new factor
-  objects over an earlier three-year range and confirming the sign and magnitude hold.
+- **Hold out data.** Under the 10-year cap, reserve a non-overlapping period before mining; out-of-sample
+  means re-creating survivors as new factor objects over that reserved range and confirming the sign and magnitude hold.
 - **Keep the failures.** They are the denominator of the correction.
 - **Prefer few uncorrelated axes.** Five factors at 0.9 mutual correlation is one factor with extra
   steps.
