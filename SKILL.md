@@ -64,6 +64,12 @@ without wasting compute credits.
 When a user invokes this skill for the first time in a session, follow this sequence before any
 mining work. Do not skip ahead to writing formulas, and do not spend a single run until step 3.
 
+**0. Check CLI freshness first.** Read the installed `pandaai-cli` version before account checks,
+and compare it with the user's CLI documentation, official release information, or the currently
+available package version. If a newer version exists, report the version and likely flag, result-shape,
+or billing changes and get consent before upgrading. After an upgrade, rerun preflight and the offline
+self-test; never mix an unverified new CLI with the old compatibility assumptions.
+
 **1. Preflight.** It costs no compute credits — it only queries `balance` and `factor_list` — and
 the sole thing it writes is `~/.pandaai/config.yaml` when that file is missing, which the CLI cannot
 create for itself. Run it rather than paraphrasing what it would do:

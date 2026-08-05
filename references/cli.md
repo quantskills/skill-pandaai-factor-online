@@ -10,6 +10,12 @@ the day you installed it. `uv tool upgrade pandaai-cli` moves it.
 
 ## Install / 安装
 
+At skill startup, inspect the installed CLI version before using account or factor commands. A newer
+package is a compatibility event, not a silent upgrade: compare help output and JSON shapes, obtain
+user approval, then rerun `scripts/bootstrap.py` and `scripts/selftest.py` after upgrading.
+技能启动时先检查本机 CLI 版本；新版本视为兼容性事件，不要静默升级。对比帮助和 JSON 结构、取得用户同意后升级，
+再重新运行 `scripts/bootstrap.py` 与 `scripts/selftest.py`。
+
 ```bash
 uv tool install pandaai-cli     # recommended: isolated tool environment
 pipx install pandaai-cli        # equivalent
