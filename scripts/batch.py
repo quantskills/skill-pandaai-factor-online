@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Create, run, and tabulate a batch of PandaAI factor candidates.
 
-Input is a text file with one candidate per line: `name ~ formula ~ direction`.
+Input is a text file with one candidate per line: `name ~ definition ~ direction`.
+Use formula mode for formulas; Python mode treats definition as a `.py` file passed to the CLI.
 Blank lines and lines starting with `#` are ignored.
 
 Progress is checkpointed to <input>.state.json after every step, so an interrupted
@@ -140,8 +141,12 @@ def extract(payload: dict, direction: str) -> dict:
     Raises ValueError rather than returning NaN: a candidate missing its long side has not
     produced a weak result, it has produced no result, and ranking it would be a fiction.
     """
-    analysis = (payload.get("results") or {}).get("factor_analysis") or {}
-    indicators = {r["indicator"]: r.get("factor1") for r in analysis.get("query_factor_analysis_data", [])}
+    # `factor_run` nests analysis under results; `factor_result` returns it at the top level.
+    analysis = payload.get("factor_analysis") or (payload.get("results") or {}).get("factor_analysis") or {}
+    # CLI 0.1.3 calls the value `factor_value`; older payloads and some workflow nodes use
+    # `factor1`. Accept both so a successful run cannot silently lose its IC metrics.
+    indicators = {r["indicator"]: r.get("factor1", r.get("factor_value"))
+                  for r in analysis.get("query_factor_analysis_data", [])}
     groups = {r["group"]: r for r in analysis.get("query_group_return_analysis", [])}
 
     long_name = HIGH if direction == "1" else LOW
@@ -208,7 +213,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("file", type=Path)
     ap.add_argument("--mode", choices=("formula", "python"), default="formula",
-                    help="candidate definition type; keep formula and Python batches separate")
+                    help="definition type: formula by default, python for .py files")
     ap.add_argument("--start", required=True, help="YYYYMMDD")
     ap.add_argument("--end", required=True, help="YYYYMMDD")
     ap.add_argument("--cycle", type=int, default=5, help="rebalance cycle in days, 1-10")
@@ -252,8 +257,8 @@ def main() -> int:
               f"checked against\nthe current settings. Delete their entries to re-run them."
               , file=sys.stderr)
     if stale:
-        print("These candidates were last run with a different formula, direction, window or "
-              "cycle:", file=sys.stderr)
+        print("These candidates were last run with a different mode, definition, direction, window "
+              "or cycle:", file=sys.stderr)
         for name in stale:
             print(f"  {name}", file=sys.stderr)
         print(f"\nReusing their saved results would misreport them. Either restore the old "

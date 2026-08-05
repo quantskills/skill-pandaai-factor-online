@@ -149,6 +149,20 @@ class Extract(unittest.TestCase):
         self.assertEqual(metrics["ic_p_value"], 0.01)
         self.assertNotIn("p_value", metrics)
 
+    def test_accepts_the_live_cli_factor_value_field(self):
+        payload = run_payload()
+        for row in payload["results"]["factor_analysis"]["query_factor_analysis_data"]:
+            row["factor_value"] = row.pop("factor1")
+        metrics = batch.extract(payload, "1")
+        self.assertEqual(metrics["rank_ic"], 0.05)
+        self.assertEqual(metrics["ic_p_value"], 0.01)
+
+    def test_accepts_factor_result_top_level_shape(self):
+        payload = run_payload()
+        payload = {"success": True, "factor_analysis": payload["results"]["factor_analysis"]}
+        metrics = batch.extract(payload, "1")
+        self.assertEqual(metrics["long_excess"], 10.0)
+
     def test_refuses_a_payload_without_the_long_side(self):
         with self.assertRaises(ValueError):
             batch.extract(run_payload(groups=("分组1",)), "1")
@@ -232,6 +246,25 @@ class BatchRun(unittest.TestCase):
                              encoding="utf-8")
         self.main("--max-runs", "2")
         self.assertEqual(self.runs(), 2)
+
+    def test_complex_factor_uses_cli_file_mode_and_returns_metrics(self):
+        # Prompt-level decision: rolling state plus conditional logic is clearer as Python than
+        # as one opaque formula. The stub confirms the exact CLI path without spending credits.
+        source = self.tmp / "complex_factor.py"
+        source.write_text(
+            "class ComplexFactor(Factor):\n"
+            "    def calculate(self, factors):\n"
+            "        close = factors['close']\n"
+            "        return close.rolling(20).mean()\n",
+            encoding="utf-8",
+        )
+        self.file.write_text("complex state ~ complex_factor.py ~ 1\n", encoding="utf-8")
+        self.assertEqual(self.main("--mode", "python"), 0)
+        create = next(call for call in self.calls if call[0] == "factor_create")
+        self.assertIn("--file", create)
+        self.assertNotIn("--formula", create)
+        state = json.loads(self.state.read_text(encoding="utf-8"))
+        self.assertIn("metrics", state["complex state"])
 
     def test_an_unusable_result_is_a_failure_not_a_ranked_row(self):
         self.file.write_text("a ~ BIAS(CLOSE,5) ~ 0\n", encoding="utf-8")

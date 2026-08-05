@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 GATEWAY_URL = "https://www.pandaaiquant.com/pandaApi"
+OBSERVED_RUN_COST = 2
 LOGIN_PAGE = "https://www.pandaaiquant.com/login"
 COMPETITION = "https://www.pandaaiquant.com/factorhub/fourthFactorCompetition/"
 PERSONAL_CENTER = "https://www.pandaaiquant.com/personalcenter?id=1"
@@ -157,10 +158,11 @@ def check_account() -> bool:
     power = (balance.get("balance") or {}).get("computingPower")
     say(OK, f"compute balance: {power}")
     if isinstance(power, (int, float)):
-        # Measured at 5 credits a run, flat: 80 credits over 16 runs, three-month and three-year
-        # windows alike. A balance is only meaningful once it is stated as experiments.
+        # Observed in a successful 0.1.3 Python run on 2026-08-05. The server settles billing, so
+        # treat this as planning guidance and confirm it from the returned billing object.
         say(OK if power >= 50 else WARN,
-            f"that is about {int(power // 5)} runs left at 5 credits each")
+            f"that is about {int(power // OBSERVED_RUN_COST)} runs left at "
+            f"{OBSERVED_RUN_COST} credits each (verify billing after a run)")
         if power <= 0:
             say(WARN, "a zero balance usually means the account has not entered the competition")
             print(f"       Enter at {COMPETITION} — credits are granted on entry.")

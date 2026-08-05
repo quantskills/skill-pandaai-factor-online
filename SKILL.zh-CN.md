@@ -7,7 +7,7 @@ license: GPL-3.0
 # PandaAI 因子在线挖掘
 
 从一台干净的机器到跑出第一个因子分析，再到不浪费算力地持续迭代，需要的全部内容。
-比赛最终积分不是单一收益率；评分规则摘要见 [references/competition_rules.md](references/competition_rules.md)。
+比赛参赛者可另阅 [references/competition_rules.md](references/competition_rules.md) 了解官方积分与组合口径；它只作参考，不改变用户自己的研究目标或排序标准。
 
 English version: [SKILL.md](SKILL.md)
 
@@ -59,7 +59,7 @@ Agent 很少正好从那里启动，所以请以该目录为基准解析这些�
 
 用户回来后重新跑一次体检，每一行都是 `ok` 才继续。
 
-**3. 用用户能理解的说法汇报账号状态。** 把余额换算成实验次数——每次运行 5 算力，
+**3. 用用户能理解的说法汇报账号状态。** 用当前实测单次扣费把余额换算成实验次数；
 直接说还能跑多少次——并说明账号上已有多少个因子。
 
 **4. 写任何公式之前，先定死这三个参数。** 问用户，不要替他决定：
@@ -81,10 +81,10 @@ Agent 很少正好从那里启动，所以请以该目录为基准解析这些�
 
 产出下面这些，放在冷启动时定好的持久工作目录里，而不是临时路径：
 
-- `candidates.txt`：每行一个候选，`名称 ~ 公式 ~ 方向`，**包括你预期会失败的那些**，
+- `candidates.txt`：每行一个候选，`名称 ~ 定义 ~ 方向`；定义可以是公式或 Python 文件（按模式选择），**包括你预期会失败的那些**，
   因为这个数量是多重检验的分母
 - `candidates.txt.state.json`：`batch.py` 写的断点文件，含每个候选的 factor id、run id 与指标，
-  中断后续跑不会重复花算力。每条记录都带一个指纹，绑定当时的公式、方向、区间与调仓周期，
+  中断后续跑不会重复花算力。每条记录都带一个指纹，绑定当时的模式、定义、方向、区间与调仓周期，
   所以改过的候选会让批次停下来，而不是当作没变过继续复用
 - 一张排序表，每个候选给出：Rank_IC、p 值、单调性、多头组超额收益、换手率、折算出的年化成本，
   以及作为排序依据的净值
@@ -142,8 +142,8 @@ pandaai-cli --json balance                            # 算力余额
 pandaai-cli --json factor_list --limit 1 --no-detail  # 返回体里的 total 就是因子数量
 ```
 
-创建因子不扣算力，每次运行固定扣 5 算力，三个月窗口和三年窗口一样贵。
-余额除以五就是还能做多少次实验，按这个数字规划每批的规模。另外扣费结算晚一两分钟，
+创建因子不扣算力。2026-08-05 在 CLI 0.1.3 上实测每次运行扣 2 算力，但计费由服务端结算；
+用余额除以体检报告的当前实测单次扣费规划批次，并在首个运行后核对 `billing.deducted`。另外扣费结算晚一两分钟，
 运行刚返回就去读余额会读少。
 因子数量要看，是因为名称会撞车、旧实验会堆积；给每一批起一个独立的名称前缀，方便日后清理。
 但**不要用 `factor_delete --pattern` 去清理**：它一个都删不掉，而且报错理由是假的——
@@ -175,7 +175,7 @@ class ComplexFactor(Factor):
         return momentum * vol_signal
 ```
 
-公式方式迭代更快，多数候选够用；因子需要好几步中间计算时，Python 方式更好维护。
+公式方式迭代更快，多数候选够用；因子需要好几步中间计算时，Python 方式更好维护。Python 的返回契约、官方示例和 CLI 文件模式见 [references/python_factors.md](references/python_factors.md)。
 
 CLI 实际能做的事：
 
@@ -256,7 +256,7 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 样本外验证正是「同一批候选换一个更早的区间」，所以当保存的结果与当前候选对不上时，批次会拒绝启动。
 请把候选复制到第二个文件里跑更早的区间，不要在原文件上改。
 
-公式无法表达时才使用 Python，并单独建立 Python 候选文件；不要在同一个批次混用两种模式：
+默认先用公式：它便于审阅、字段与算子参考也更直接。用户明确需要路径依赖状态、复杂表格处理或其他公式难以清楚表达的逻辑时，Agent 应自动改走 Python 路径，并说明切换原因。Python 候选单独建立文件，避免和公式定义混淆：
 
 ```text
 # python-candidates.txt，每行仍是 名称 ~ Python文件 ~ 方向
@@ -268,11 +268,11 @@ python3 scripts/batch.py python-candidates.txt --mode python \
   --start 20230101 --end 20251231 --cycle 5 --prefix "py-"
 ```
 
-脚本会在创建前检查 Python 语法、唯一的 `Factor` 子类和 `calculate(self, factors)`；文件内容、模式、方向、区间和周期都会写入指纹。Python 静态检查不能证明没有未来函数，仍需按规则做短区间试探和证伪。
+脚本会在创建前检查 Python 语法、唯一的 `Factor` 子类和 `calculate(self, factors)`；文件内容、模式、方向、区间和周期都会写入指纹。随后先按用户批准的短窗口运行 CLI 验证，再决定是否扩大范围。Python 静态检查不能证明没有未来函数，仍需做短区间试探和证伪。
 
 ## 解读结果
 
-平台把多空年化放在最显眼处，而这假设了 A 股参与者建不起来的空头腿。改为按多头侧评判：
+平台把多空年化放在最显眼处，而这假设了 A 股参与者建不起来的空头腿。除非用户另有明确目标，默认优先呈现可交易长端的结果；用户也可以自行指定排序指标、成本假设和风险约束。
 
 1. **多头分组的超额收益。** 平台按全市场因子值排序，前10%组成等权组合，并在创建时确定的调仓周期同步调仓。
    分组按因子值升序排列，所以 `--factor-direction 1` 时多头侧是分组10，为 `0` 时是分组1。看错一端，全部结论都会反过来。
@@ -285,10 +285,7 @@ python3 scripts/batch.py python-candidates.txt --mode python \
 年化成本 ≈ 换手率 × 单边成本 × 2 × (252 / 调仓天数)
 ```
 
-报告里的 `turnoverRate` 是每次调仓被替换掉的前10%组合持仓比例。
-**单边成本默认取 0.3%**，买卖两边合计按 0.6% 计入年化成本；
-如果用户做小盘股或资金量大就上调，并说明你用的是哪个数。5 日调仓、单边成本 0.3% 时，
-60% 的换手率一年约吃掉 18 个点。`batch.py` 会自动折算并按净值排序。正式参赛还要按比赛评分规则计算 A/B/C 三个模块。
+`turnoverRate` 是平台返回的所持分组换手率。`batch.py` 默认按单边 0.3%、买卖两边合计 0.6% 折算；用户可以按资金规模、标的和执行条件修改成本假设。参赛者可参考比赛评分规则，但不应把 A/B/C 公式当成通用因子挖掘的硬目标。
 
 ## 研究复盘流程
 
@@ -336,6 +333,7 @@ python3 scripts/batch.py python-candidates.txt --mode python \
 | [references/cli.md](references/cli.md) | 命令、参数、返回结构与已知 CLI bug |
 | [references/fields.md](references/fields.md) | 348 个公式模式字段，并索引 `references/fields-*.md` 的 949 条回测因子目录 |
 | [references/operators.md](references/operators.md) | 官方算子手册全文 |
+| [references/python_factors.md](references/python_factors.md) | Python 因子返回契约、官方示例与 CLI 文件模式 |
 | [references/pitfalls.md](references/pitfalls.md) | 会产出「能跑但跑错」因子的陷阱 |
 | [references/playbook.md](references/playbook.md) | 算力预算、复盘表、证伪菜单 |
 | [references/competition_rules.md](references/competition_rules.md) | 第四届比赛收益率、IC 与积分评分口径 |

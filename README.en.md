@@ -170,7 +170,7 @@ available it runs one for real, confirming the preflight explains itself instead
 | Constraint | Detail |
 | --- | --- |
 | 🔐 Credentials belong to the user | The user runs the login command; never print or commit the config file, token, or uid |
-| 💰 Every run costs 5 credits | Creating a factor is free; check `balance`, validate formulas on a short window, batch the rest |
+| 💰 Runs consume credits | Creating a factor is free; treat completed-run `billing.deducted` as authoritative, check `balance`, validate on a short window, then batch the rest |
 | 📅 Three-year backtest cap | Out-of-sample validation needs a second factor object, not a wider range |
 | 📊 Judge on net long-side excess | The long-short headline is not the conclusion; convert turnover to an annual cost first |
 | 🧪 Statistical discipline | Keep every candidate tested, failures included, as the multiple-testing denominator |
