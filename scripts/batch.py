@@ -14,6 +14,7 @@ nothing had changed.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import math
@@ -23,9 +24,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Groups are ordered by ascending factor value, so 分组1 holds the lowest values and 分组10 the
-# highest. Which end is the long side follows --factor-direction: 1 means higher is better.
-# Verified by checking that 多空组合 equals long minus short for both direction settings.
+# The platform sorts the full universe by factor value. With its ten groups, each group is one
+# decile and the held portfolio is the direction-selected extreme (top 10% for direction 1,
+# bottom 10% for direction 0), equal-weighted and rebalanced synchronously with the factor pool.
+# Group labels are ascending, so 分组1 is the bottom decile and 分组10 the top decile.
 LOW, HIGH = "分组1", "分组10"
 
 # Two formula traps worth catching before they cost a run. FUTURE_RETURNS reads the answer;
@@ -54,7 +56,26 @@ def cli(*args: str, timeout: int = 1800) -> dict:
         return {"success": False, "error": {"message": (proc.stdout + proc.stderr).strip()[:300]}}
 
 
-def parse_candidates(path: Path) -> list[dict]:
+def lint_python(path: Path) -> str | None:
+    try:
+        source = path.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(path))
+    except (OSError, UnicodeError, SyntaxError) as exc:
+        return f"cannot load Python factor: {exc}"
+    factors = [node for node in tree.body if isinstance(node, ast.ClassDef)
+               and any(isinstance(base, ast.Name) and base.id == "Factor" for base in node.bases)]
+    if len(factors) != 1:
+        return "Python factor must define exactly one class that directly inherits Factor"
+    methods = [node for node in factors[0].body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+               and node.name == "calculate"]
+    if len(methods) != 1 or isinstance(methods[0], ast.AsyncFunctionDef):
+        return "Factor subclass must define one synchronous calculate(self, factors) method"
+    if len(methods[0].args.args) < 2:
+        return "calculate must accept self and factors"
+    return None
+
+
+def parse_candidates(path: Path, mode: str = "formula") -> list[dict]:
     out, seen = [], {}
     for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = raw.strip()
@@ -63,23 +84,37 @@ def parse_candidates(path: Path) -> list[dict]:
         parts = [p.strip() for p in line.split("~")]
         if len(parts) != 3:
             sys.exit(f"{path}:{lineno}: expected `name ~ formula ~ direction`, got {len(parts)} fields")
-        name, formula, direction = parts
+        name, definition, direction = parts
         if direction not in ("0", "1"):
             sys.exit(f"{path}:{lineno}: direction must be 0 or 1, got {direction!r}")
         # Names key the state file, so duplicates would have two formulas share one result.
         if name in seen:
             sys.exit(f"{path}:{lineno}: candidate name {name!r} already used on line {seen[name]}")
-        if (problem := lint(formula)) is not None:
-            sys.exit(f"{path}:{lineno}: {name}: {problem}")
+        if mode == "formula":
+            if (problem := lint(definition)) is not None:
+                sys.exit(f"{path}:{lineno}: {name}: {problem}")
+            candidate = {"name": name, "formula": definition, "direction": direction,
+                         "mode": mode, "content": definition}
+        else:
+            source_path = (path.parent / definition).resolve()
+            if source_path.suffix.lower() != ".py":
+                sys.exit(f"{path}:{lineno}: {name}: Python candidates must reference a .py file")
+            if (problem := lint_python(source_path)) is not None:
+                sys.exit(f"{path}:{lineno}: {name}: {problem}")
+            candidate = {"name": name, "file": str(source_path), "direction": direction,
+                         "mode": mode, "content": source_path.read_text(encoding="utf-8")}
         seen[name] = lineno
-        out.append({"name": name, "formula": formula, "direction": direction})
+        out.append(candidate)
     return out
 
 
 def fingerprint(cand: dict, args) -> str:
     """Everything that changes what a run means. Trading cost is absent on purpose: it is
     applied locally at report time, so changing it never needs another run."""
-    spec = json.dumps([cand["formula"], cand["direction"], args.start, args.end, args.cycle],
+    mode = cand.get("mode", "formula")
+    content = cand.get("content", cand.get("formula", ""))
+    spec = json.dumps([mode, content, cand["direction"], args.start, args.end,
+                       args.cycle],
                       ensure_ascii=False)
     return hashlib.sha256(spec.encode("utf-8")).hexdigest()[:16]
 
@@ -130,9 +165,9 @@ def extract(payload: dict, direction: str) -> dict:
     }
 
 
-def cost_of(metrics: dict, cycle: int, round_trip: float) -> float:
-    """Each rebalance replaces `turnover` of the holdings, costing one round trip on that slice."""
-    return metrics["turnover"] * round_trip * (252.0 / cycle)
+def cost_of(metrics: dict, cycle: int, one_way: float) -> float:
+    """Annualise one-way cost on both sells and buys for the replaced portfolio slice."""
+    return metrics["turnover"] * (2.0 * one_way) * (252.0 / cycle)
 
 
 def report(state: dict, candidates: list[dict], cycle: int, round_trip: float,
@@ -151,8 +186,8 @@ def report(state: dict, candidates: list[dict], cycle: int, round_trip: float,
         print(f"{name[:28]:<28} {str(m.get('ic_mean')):>8} {str(m['rank_ic']):>8} "
               f"{str(m.get('ic_p_value')):>7} {str(m['monotonicity']):>6} {m['long_excess']:>8.2f} "
               f"{m['turnover']:>7.2f} {cost:>7.2f} {net:>8.2f}")
-    print(f"\nlong% is the excess return of the long-side decile; net% subtracts the turnover cost"
-          f" at {round_trip:.2%} round trip.")
+    print(f"\nlong% is the excess return of the direction-selected, equal-weighted extreme 10%; "
+          f"net% subtracts annual turnover cost at {round_trip:.2%} one-way (2x round trip).")
     print("IC_p is the p-value of the IC_mean t-statistic. Rank_IC has no p-value of its own.")
 
     failed = [c["name"] for c in candidates if state.get(c["name"], {}).get("error")]
@@ -172,11 +207,13 @@ def report(state: dict, candidates: list[dict], cycle: int, round_trip: float,
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("file", type=Path)
+    ap.add_argument("--mode", choices=("formula", "python"), default="formula",
+                    help="candidate definition type; keep formula and Python batches separate")
     ap.add_argument("--start", required=True, help="YYYYMMDD")
     ap.add_argument("--end", required=True, help="YYYYMMDD")
     ap.add_argument("--cycle", type=int, default=5, help="rebalance cycle in days, 1-10")
     ap.add_argument("--round-trip", type=float, default=0.003,
-                    help="round-trip trading cost as a fraction, default 0.3%% for A-shares")
+                    help="one-way trading cost as a fraction, default 0.3%% for A-shares")
     ap.add_argument("--prefix", default="", help="prepended to every factor name, eases bulk cleanup")
     ap.add_argument("--create-only", action="store_true", help="create factors without spending runs")
     ap.add_argument("--report-only", action="store_true", help="re-print the table from saved state")
@@ -189,7 +226,7 @@ def main() -> int:
                          "threshold (0 = just this file)")
     args = ap.parse_args()
 
-    candidates = parse_candidates(args.file)
+    candidates = parse_candidates(args.file, args.mode)
     hypotheses = max(args.hypotheses, len(candidates))
     state_path = args.file.with_suffix(args.file.suffix + ".state.json")
     state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
@@ -243,7 +280,9 @@ def main() -> int:
         entry["spec"] = fingerprint(cand, args)
 
         if not entry.get("factor_id"):
-            created = cli("factor_create", "--formula", cand["formula"],
+            definition_args = (["--formula", cand["formula"]] if cand["mode"] == "formula"
+                               else ["--file", cand["file"]])
+            created = cli("factor_create", *definition_args,
                           "--name", args.prefix + name,
                           "--start-date", args.start, "--end-date", args.end,
                           "--adjustment-cycle", str(args.cycle),
