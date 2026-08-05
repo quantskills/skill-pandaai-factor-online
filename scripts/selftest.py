@@ -96,6 +96,23 @@ class CandidateFile(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.parse("a ~ BIAS(CLOSE,5) ~ 2\n")
 
+    def test_python_mode_requires_a_valid_factor_file(self):
+        factor = Path(self.tmp) / "factor.py"
+        factor.write_text("class Demo(Factor):\n    def calculate(self, factors):\n        return factors['close']\n", encoding="utf-8")
+        manifest = Path(self.tmp) / "python-candidates.txt"
+        manifest.write_text("demo ~ factor.py ~ 1\n", encoding="utf-8")
+        parsed = batch.parse_candidates(manifest, "python")
+        self.assertEqual(parsed[0]["mode"], "python")
+        self.assertIn("class Demo", parsed[0]["content"])
+
+    def test_python_mode_rejects_missing_calculate(self):
+        factor = Path(self.tmp) / "bad.py"
+        factor.write_text("class Demo(Factor):\n    pass\n", encoding="utf-8")
+        manifest = Path(self.tmp) / "python-candidates.txt"
+        manifest.write_text("bad ~ bad.py ~ 1\n", encoding="utf-8")
+        with self.assertRaises(SystemExit):
+            batch.parse_candidates(manifest, "python")
+
 
 class Fingerprint(unittest.TestCase):
     def setUp(self):
@@ -142,7 +159,7 @@ class Extract(unittest.TestCase):
 
     def test_cost_matches_the_documented_formula(self):
         metrics = batch.extract(run_payload(turnover="60.00%"), "1")
-        self.assertAlmostEqual(batch.cost_of(metrics, 5, 0.003), 60 * 0.003 * (252 / 5))
+        self.assertAlmostEqual(batch.cost_of(metrics, 5, 0.003), 60 * 0.003 * 2 * (252 / 5))
 
 
 class BatchRun(unittest.TestCase):

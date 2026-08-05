@@ -7,6 +7,7 @@ license: GPL-3.0
 # PandaAI 因子在线挖掘
 
 从一台干净的机器到跑出第一个因子分析，再到不浪费算力地持续迭代，需要的全部内容。
+比赛最终积分不是单一收益率；评分规则摘要见 [references/competition_rules.md](references/competition_rules.md)。
 
 English version: [SKILL.md](SKILL.md)
 
@@ -198,8 +199,8 @@ CLI 实际能做的事：
 | 约束 | 取值 |
 |---|---|
 | 回测区间 | **最长 3 年**，超出会在创建时被拒 |
-| 分组数 | 固定 10 组 |
-| 股票池 | 固定沪深全A |
+| 分组数 | 收益率口径按全市场排序，默认十组；每组为一个十分位，前10%为正向多头组 |
+| 股票池 | 全市场排序；基准为中证全指（以平台实际返回为准） |
 | 调仓周期 | 1–10 天，创建时设定 |
 | 算力规格 | 固定 cpu=4 / mem=8 / gpu=4 |
 
@@ -255,25 +256,39 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 样本外验证正是「同一批候选换一个更早的区间」，所以当保存的结果与当前候选对不上时，批次会拒绝启动。
 请把候选复制到第二个文件里跑更早的区间，不要在原文件上改。
 
+公式无法表达时才使用 Python，并单独建立 Python 候选文件；不要在同一个批次混用两种模式：
+
+```text
+# python-candidates.txt，每行仍是 名称 ~ Python文件 ~ 方向
+复杂状态因子 ~ factors/complex_state.py ~ 1
+```
+
+```bash
+python3 scripts/batch.py python-candidates.txt --mode python \
+  --start 20230101 --end 20251231 --cycle 5 --prefix "py-"
+```
+
+脚本会在创建前检查 Python 语法、唯一的 `Factor` 子类和 `calculate(self, factors)`；文件内容、模式、方向、区间和周期都会写入指纹。Python 静态检查不能证明没有未来函数，仍需按规则做短区间试探和证伪。
+
 ## 解读结果
 
 平台把多空年化放在最显眼处，而这假设了 A 股参与者建不起来的空头腿。改为按多头侧评判：
 
-1. **多头分组的超额收益。** 分组按因子值升序排列，所以 `--factor-direction 1` 时多头侧是分组10，
-   为 `0` 时是分组1。看错一端，全部结论都会反过来。
+1. **多头分组的超额收益。** 平台按全市场因子值排序，前10%组成等权组合，并在创建时确定的调仓周期同步调仓。
+   分组按因子值升序排列，所以 `--factor-direction 1` 时多头侧是分组10，为 `0` 时是分组1。看错一端，全部结论都会反过来。
 2. **十组单调性**：只在极端组起作用的因子很脆弱。
 3. **IC_mean 的 t 统计量对应的 p 值**，即表里的 `IC_p` 列；Rank_IC 没有自己的 p 值。
    注意下面的多重检验问题。
 4. **换手率**，要折算成成本，而不是当成一个比率引用：
 
 ```
-年化成本 ≈ 换手率 × 双向成本 × (252 / 调仓天数)
+年化成本 ≈ 换手率 × 单边成本 × 2 × (252 / 调仓天数)
 ```
 
-报告里的 `turnoverRate` 是每次调仓被替换掉的分组持仓比例，所以 10 分组下会逼近 90% 饱和。
-**双向成本默认取 0.3%**——A 股散户口径下佣金加印花税加滑点的大致水平——不要为这个去问用户；
-如果用户做小盘股或资金量大就上调，并说明你用的是哪个数。5 日调仓、双向成本 0.3% 时，
-60% 的换手率一年约吃掉 9 个点。`batch.py` 会自动折算并按净值排序。
+报告里的 `turnoverRate` 是每次调仓被替换掉的前10%组合持仓比例。
+**单边成本默认取 0.3%**，买卖两边合计按 0.6% 计入年化成本；
+如果用户做小盘股或资金量大就上调，并说明你用的是哪个数。5 日调仓、单边成本 0.3% 时，
+60% 的换手率一年约吃掉 18 个点。`batch.py` 会自动折算并按净值排序。正式参赛还要按比赛评分规则计算 A/B/C 三个模块。
 
 ## 研究复盘流程
 
@@ -323,6 +338,7 @@ python3 scripts/batch.py candidates.txt --start 20230101 --end 20251231 --cycle 
 | [references/operators.md](references/operators.md) | 官方算子手册全文 |
 | [references/pitfalls.md](references/pitfalls.md) | 会产出「能跑但跑错」因子的陷阱 |
 | [references/playbook.md](references/playbook.md) | 算力预算、复盘表、证伪菜单 |
+| [references/competition_rules.md](references/competition_rules.md) | 第四届比赛收益率、IC 与积分评分口径 |
 | [references/source_boundary.md](references/source_boundary.md) | 数据、凭据与研究边界 |
 
 ## 安全边界

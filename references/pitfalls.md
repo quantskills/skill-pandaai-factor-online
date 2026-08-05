@@ -125,18 +125,17 @@ strategy in practice. Convert first, compare second:
 没有折进收益里。一个高换手、多空数字很强的因子，实操上可能是亏的。先折算，再比较：
 
 ```
-annual cost ≈ turnover × round_trip_cost × (252 / rebalance_days)
-年化成本 ≈ 换手率 × 双向成本 × (252 / 调仓天数)
+annual cost ≈ turnover × one_way_cost × 2 × (252 / rebalance_days)
+年化成本 ≈ 换手率 × 单边成本 × 2 × (252 / 调仓天数)
 ```
 
-`round_trip_cost` is one complete buy-and-sell: commission both sides, stamp duty on the sell, plus
-slippage. Roughly 0.2%–0.3% for A-shares, and slippage on small caps can dominate the rest.
-`双向成本`指一买一卖的完整往返：双边佣金、卖出印花税，加上冲击成本。A 股大致 0.2%–0.3%，
+`one_way_cost` is the cost of one side. The default is 0.3% per side in this skill, so a complete
+buy-and-sell is 0.6%; slippage on small caps can dominate the rest.
+`单边成本`指买入或卖出一边的成本。本技能默认每边 0.3%，完整买卖合计 0.6%，
 小市值股票的冲击成本可能盖过其余项。
 
-The reported `turnoverRate` is the share of the decile replaced per rebalance, so with 10 groups it
-saturates near 90% rather than 100%.
-报告中的 `turnoverRate` 是每次调仓被替换掉的分组持仓比例，因此 10 分组下饱和值接近 90% 而非 100%。
+The reported `turnoverRate` is the share of the held top/bottom 10% portfolio replaced per rebalance.
+报告中的 `turnoverRate` 是每次调仓被替换掉的前10%或后10%等权组合持仓比例。
 
 ## 11. The three-year cap shapes your design / 三年上限决定你的设计
 
