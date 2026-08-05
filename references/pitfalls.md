@@ -137,20 +137,21 @@ buy-and-sell is 0.6%; slippage on small caps can dominate the rest.
 The reported `turnoverRate` is the share of the held top/bottom 10% portfolio replaced per rebalance.
 报告中的 `turnoverRate` 是每次调仓被替换掉的前10%或后10%等权组合持仓比例。
 
-## 11. The ten-year cap shapes your design / 十年上限决定你的设计
+## 11. The server cap shapes your design / 服务端上限决定你的设计
 
-You cannot run a single backtest longer than ten years. Out-of-sample validation therefore means creating a
-second factor object over a reserved non-overlapping range and comparing. Do not skip it because the longer cap
-can make in-sample overfitting look safer than it is.
+The CLI 0.1.4 help advertises ten years, but a 2026-08-05 live run over ten years was rejected by the server
+with error 10003 (maximum three years). Verify the server limit before budgeting. Out-of-sample validation
+still means creating a second factor object over a reserved non-overlapping range and comparing.
 
-单次回测不能超过十年。所以样本外验证意味着在预留的不重叠区间上再建一个因子对象然后对比。
+CLI 0.1.4 帮助虽显示十年，但 2026-08-05 真实十年运行被服务端错误 10003 拒绝（上限三年）。
+规划算力前先探测服务端上限。样本外验证仍意味着在预留的不重叠区间上再建一个因子对象然后对比。
 不要因为窗口变长就跳过——长样本仍然可能被风格周期和选择偏差污染。
 
-## 12. Regime dependence within ten years / 十年内的风格切换
+## 12. Regime dependence within the available span / 可用跨度内的风格切换
 
-Ten years of A-share data can still be dominated by a few style regimes. A factor that is flat for
-most of the sample and spectacular for six months has one observation, not ten years of evidence. Always
+Even a long A-share sample can be dominated by a few style regimes. A factor that is flat for
+most of the sample and spectacular for six months has one observation, not robust evidence. Always
 break performance down by calendar year before believing a headline number.
 
-十年的 A 股数据仍可能被几种风格周期主导。一个大部分时间平淡、半年爆发的因子，是一个观测，不是十年的证据。
+可用跨度的 A 股数据仍可能被几种风格周期主导。一个大部分时间平淡、半年爆发的因子，只是一个观测，不是稳健证据。
 相信头条数字之前，先按自然年拆开看。

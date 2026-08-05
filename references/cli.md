@@ -63,7 +63,7 @@ token 会留在配置文件里，Agent 从已认证状态继续，不需要接�
 ```bash
 pandaai-cli --json factor_create (--formula F | --code C | --file PATH)
   [--name NAME] [--start-date YYYYMMDD] [--end-date YYYYMMDD]
-  [--adjustment-cycle N] [--factor-direction D]
+  [--adjustment-cycle N] [--group-number N] [--factor-direction D]
 ```
 
 | Flag | Default | Meaning |
@@ -73,11 +73,17 @@ pandaai-cli --json factor_create (--formula F | --code C | --file PATH)
 | `--start-date` | yesterday − 60d | Start of the construction window / 构建开始日期 |
 | `--end-date` | yesterday | End of the construction window / 构建结束日期 |
 | `--adjustment-cycle` | 1 | Rebalance cycle, 1–10 days / 调仓周期 1–10 天 |
+| `--group-number` | 5 | Number of return groups, 2–10 / 收益分组数 2–10 |
 | `--factor-direction` | 1 | 1 = higher is better, 0 = lower is better / 1 正向，0 负向 |
 
-Groups are fixed at 10 and the universe is fixed at 沪深全A. A window longer than ten years is
-rejected at creation.
-分组固定 10 组，股票池固定沪深全A。超过十年的区间在创建时即被拒绝。
+The CLI allows 2–10 groups, but this skill's batch parser and reporting convention use 10 groups;
+keep `--group-number 10` for comparable results and correct direction-end extraction. If you choose
+another count, inspect the returned group labels yourself before ranking. The universe is fixed at
+沪深全A. The CLI advertises a ten-year maximum, but the server must be probed before relying on it.
+CLI 允许 2–10 组，但本技能的批处理解析和报告口径按 10 组编写；为了结果可比及正确读取方向端，请保持
+`--group-number 10`。如果主动改成其他组数，排序前必须自己检查返回的分组标签。股票池固定沪深全A。
+CLI 帮助虽宣称最长十年，但 2026-08-05 对 20160101–20251231 的真实运行返回错误码 10003（服务端限制不超过三年）；
+在服务端确认修复前，不要按十年预算或规划批次。
 
 Returns `{"success": true, "factor_id": "..."}`.
 
@@ -137,7 +143,8 @@ every conclusion.
 pandaai-cli factor_info <factor_id>
 pandaai-cli factor_update <factor_id> [--name | --formula | --code | --file |
                                        --start-date | --end-date |
-                                       --adjustment-cycle | --factor-direction]
+                                       --adjustment-cycle | --group-number |
+                                       --factor-direction]
 pandaai-cli --json factor_list [--limit N] [--page N] [--no-detail]
 pandaai-cli factor_delete <factor_id>... | --pattern PREFIX [--yes]
 pandaai-cli --json balance

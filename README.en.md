@@ -29,8 +29,8 @@ of them documented:
   `--factor-direction` rather than the label. Read the wrong end and every conclusion inverts.
 - The platform headlines a long-short annualized return, which assumes a short leg A-share
   participants cannot build, and reports turnover separately instead of folding it into returns.
-- Backtests are capped at ten years; long samples can still overfit, so out-of-sample
-  validation an explicit extra step rather than a wider date range.
+- CLI 0.1.4 advertises ten-year backtests, but the 2026-08-05 server test still rejected anything
+  over three years; verify the server limit before budgeting, and keep out-of-sample validation explicit.
 
 The skill carries those findings, a full reference for 348 fields and 137 operators, and a research
 loop that keeps an agent from spending a whole credit balance on a hundred variants of one idea.
@@ -171,7 +171,7 @@ available it runs one for real, confirming the preflight explains itself instead
 | --- | --- |
 | 🔐 Credentials belong to the user | The user runs the login command; never print or commit the config file, token, or uid |
 | 💰 Runs consume credits | Creating a factor is free; treat completed-run `billing.deducted` as authoritative, check `balance`, validate on a short window, then batch the rest |
-| 📅 Three-year backtest cap | Out-of-sample validation needs a second factor object, not a wider range |
+| 📅 Server-verified backtest cap | CLI 0.1.4 advertises ten years, but the server test still rejected >3 years; OOS needs a second factor object |
 | 📊 Judge on net long-side excess | The long-short headline is not the conclusion; convert turnover to an annual cost first |
 | 🧪 Statistical discipline | Keep every candidate tested, failures included, as the multiple-testing denominator |
 | 🚫 Description, not recommendation | Research structure and factual summaries only, never investment advice |

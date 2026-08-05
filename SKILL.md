@@ -44,11 +44,11 @@ quantSkills:
       ]
     },
     { "key": "start_date", "type": "date", "label": "回测开始日期" },
-    { "key": "end_date", "type": "date", "label": "回测结束日期（区间不得超过 10 年）" },
+    { "key": "end_date", "type": "date", "label": "回测结束日期（先按服务端实际上限）" },
     { "key": "cycle", "type": "number", "label": "调仓周期（1-10 个交易日）" },
     { "key": "round_trip", "type": "number", "label": "双向交易成本（小数，如 0.003）" }
   ],
-  "prompt_template": "任务：{{task}}\n阶段：{{stage}}\n回测区间：{{start_date}} 至 {{end_date}}（区间不得超过 10 年）\n调仓周期：{{cycle}} 日\n双向成本：{{round_trip}}\n附件：{{#attachments}}\n\n先检查 CLI 版本，再运行 scripts/bootstrap.py 确认环境与算力；按 SKILL.md 流程执行，并按用户选择的目标排序候选。"
+  "prompt_template": "任务：{{task}}\n阶段：{{stage}}\n回测区间：{{start_date}} 至 {{end_date}}（先按服务端实际上限）\n调仓周期：{{cycle}} 日\n双向成本：{{round_trip}}\n附件：{{#attachments}}\n\n先检查 CLI 版本，再用短区间探测服务端回测上限；按 SKILL.md 流程执行，并按用户选择的目标排序候选。"
 }
 ```
 
@@ -128,8 +128,9 @@ already on the account.
 
 - **Rebalance cycle** (1–10 days). If the competition locks it at submission, it must be decided now
   and every candidate evaluated at that cycle.
-- **Backtest window**, at most ten years, plus which non-overlapping window is reserved for out-of-sample
-  validation and will not be looked at during mining.
+- **Backtest window**, subject to the server's currently verified limit (the 2026-08-05 server still
+  rejected anything over three years despite CLI 0.1.4 help), plus which non-overlapping window is reserved
+  for out-of-sample validation and will not be looked at during mining.
 - **Batch budget**, how many runs this session may spend.
 
 **5. Propose a probe batch** of 10–15 candidates spanning *different* hypotheses, and show the list
@@ -283,8 +284,8 @@ and ten chart series. Full flag reference and known CLI bugs: [references/cli.md
 
 | Constraint | Value |
 |---|---|
-| Backtest window | **10 years maximum**, longer ranges are rejected at creation |
-| Groups | Fixed at 10 |
+| Backtest window | CLI 0.1.4 advertises 10 years, but the 2026-08-05 server test rejected >3 years; verify before use |
+| Groups | 2–10 supported by CLI; this skill recommends 10 for its reporting and direction-end parser |
 | Universe | Fixed at 沪深全A |
 | Rebalance cycle | 1–10 days, set at creation |
 | Compute | Fixed cpu=4 / mem=8 / gpu=4 |
@@ -292,6 +293,13 @@ and ten chart series. Full flag reference and known CLI bugs: [references/cli.md
 If the competition locks the rebalance cycle once you submit, choose it **before** mining and
 evaluate every candidate at that cycle. A factor that looks strong at 1-day rebalancing can be
 unusable at 5.
+
+**Keep workflow identities straight.** `factor_create` creates one factor/workflow object and
+returns a `factor_id`; `factor_run` creates only a run record for that object. Re-running it does not
+make a second factor, while `factor_update` changes the object's definition. For in-sample and
+out-of-sample validation, create two separately named objects from the same definition with
+non-overlapping dates. Reserve the final dashboard/submission object for the exact dates, cycle,
+group count, and direction you intend to use; probe and OOS objects are research records.
 
 ## Writing formulas
 
