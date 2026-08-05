@@ -5,11 +5,12 @@ A concrete path from a fresh account to a defensible submission, plus the templa
 
 ## Credit budget first / 先算算力预算
 
-Creating a factor is free; each run costs 5 credits whatever the window length. Decide the split
-before you start, because the failure mode is spending everything on stage 1.
+Creating a factor is free. The server determines the charge; on 2026-08-05 a successful CLI 0.1.3
+Python run deducted 2 credits. Check completed-run `billing.deducted` before allocating the budget,
+because the failure mode is spending everything on stage 1.
 
-创建因子不扣算力，每次运行固定扣 5 算力，与窗口长短无关。
-开始之前先定好分配，因为典型的翻车方式就是把预算全花在第一阶段。
+创建因子不扣算力，实际扣费由服务端结算；2026-08-05 在 CLI 0.1.3 上成功运行 Python 因子扣了 2 算力。
+开始前先通过首个完成运行的 `billing.deducted` 核对口径再定分配，因为典型的翻车方式就是把预算全花在第一阶段。
 
 | Stage / 阶段 | Runs / 次数 | Purpose / 目的 |
 |---|---|---|

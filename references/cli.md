@@ -82,10 +82,12 @@ pandaai-cli --json factor_run <factor_id> [--download [PATH]] [--poll-interval S
 ```
 
 Starts the run, polls until it settles, and returns results. Defaults: poll every 2s, time out at
-600s. Each run deducts 5 credits whether it succeeds or fails, and whatever the window length;
-`factor_create` is free. The deduction settles a minute or two after the run returns.
+600s. `factor_create` is free. A successful CLI 0.1.3 Python run on 2026-08-05 deducted 2 credits;
+the server owns billing, so treat `billing.deducted` from the completed run as authoritative. The
+deduction can settle a minute or two after the run returns.
 启动、轮询到结束并返回结果。默认 2 秒轮询、600 秒超时。无论成功失败、无论窗口长短，
-每次运行都扣 5 算力；`factor_create` 不扣。扣费在运行返回之后一两分钟才结算。
+`factor_create` 不扣算力。2026-08-05 在 CLI 0.1.3 上成功运行 Python 因子扣了 2 算力；以完成运行的
+`billing.deducted` 为准。扣费可能在运行返回之后一两分钟才结算。
 
 Success payload carries `results.factor_analysis` with IC statistics and per-group returns;
 failure payload carries `error.node_errors` with the formula parse or runtime error.
@@ -102,8 +104,11 @@ Queries a completed run: core performance, IC metrics, ten-group returns plus th
 combination, top-ranked names, and chart series.
 查询已完成的运行：核心绩效、IC 指标、10 组收益与多空组合、因子值最高的股票、图表序列。
 
-Result shape worth knowing when parsing JSON:
-解析 JSON 时值得知道的结构：
+Result shape worth knowing when parsing JSON. `factor_run` nests this object at
+`results.factor_analysis`; `factor_result` returns it directly as `factor_analysis`. On CLI 0.1.3,
+indicator rows use `factor_value` (older payloads may use `factor1`).
+解析 JSON 时值得知道的结构。`factor_run` 将其放在 `results.factor_analysis`，而 `factor_result`
+直接返回顶层 `factor_analysis`。CLI 0.1.3 的指标行使用 `factor_value`（旧返回可能是 `factor1`）。
 
 | Path | Contents |
 |---|---|

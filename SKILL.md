@@ -115,7 +115,7 @@ they have not:
 Re-run preflight after the user reports back. Only continue when every line reads `ok`.
 
 **3. Report the account, in the user's terms.** Convert the balance into experiments —
-5 credits per run, so state how many runs are affordable — and mention how many factors are
+the currently observed per-run charge, so state how many runs are affordable — and mention how many factors are
 already on the account.
 
 **4. Fix the three parameters before writing any formula.** Ask the user, and do not guess:
@@ -212,8 +212,9 @@ pandaai-cli --json balance                          # compute credits
 pandaai-cli --json factor_list --limit 1 --no-detail  # `total` is the factor count
 ```
 
-Creating a factor is free; each run costs 5 credits, flat — a three-month window and a three-year
-one cost the same. Divide the balance by five and plan the batch sizes against that number. The
+Creating a factor is free. A successful CLI 0.1.3 Python run on 2026-08-05 deducted 2 credits, but
+the server settles billing: divide by the preflight's observed charge for planning, then confirm
+`billing.deducted` after the first run. The
 balance also settles a minute or two behind, so a reading taken the instant a run returns
 undercounts it. The factor count matters
 because names collide and old experiments pile up; give each batch a distinct name prefix so it can
@@ -252,7 +253,8 @@ class ComplexFactor(Factor):
 ```
 
 Formula mode is faster to iterate and enough for most candidates; Python mode is easier to maintain
-once a factor needs several intermediate steps.
+once a factor needs several intermediate steps. See [references/python_factors.md](references/python_factors.md)
+for the return contract, official examples, and CLI file mode.
 
 What the CLI can actually do:
 
@@ -414,6 +416,7 @@ Execute these; they are not reference reading. Standard library only.
 | [references/cli.md](references/cli.md) | Commands, flags, result JSON shape, and known CLI bugs |
 | [references/fields.md](references/fields.md) | 348 formula-mode fields, indexing the 949-entry backtest catalog in `references/fields-*.md` |
 | [references/operators.md](references/operators.md) | The official operator manual in full |
+| [references/python_factors.md](references/python_factors.md) | Python factor return contract, examples, and CLI file mode |
 | [references/pitfalls.md](references/pitfalls.md) | Traps that produce valid-but-wrong factors |
 | [references/playbook.md](references/playbook.md) | Credit budget, retrospective worksheet, falsification menu |
 | [references/source_boundary.md](references/source_boundary.md) | Data, credential, and research boundaries |
