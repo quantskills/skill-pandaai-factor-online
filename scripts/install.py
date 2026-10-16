@@ -54,8 +54,28 @@ def volatile(path: Path) -> bool:
     return False
 
 
+def inside_repository(dest: Path) -> bool:
+    """True when dest lives inside this repository.
+
+    This is not a style question. The skill is installed as a symlink pointing back at SRC, so a
+    target inside SRC makes the repository link to its own ancestor. opencode v2 walks skill
+    directories recursively and follows symlinks, so it never leaves that loop: it burns every core
+    (~800% CPU) and grows to several GB of resident memory until the shared event loop starves, and
+    the whole tool looks broken from the outside (empty model list, 503 on its own API).
+    """
+    resolved = dest.resolve()
+    return resolved == SRC or SRC in resolved.parents
+
+
 def place(dest: Path, copy: bool, force: bool) -> bool:
     """Put the skill at dest. Returns True on success."""
+    if inside_repository(dest):
+        sys.stdout.flush()
+        print(f"  refused {dest}\n"
+              f"          it is inside {SRC}. Linking the repository into itself creates a\n"
+              f"          symlink loop that tools walking the skill directory cannot escape.",
+              file=sys.stderr)
+        return False
     if dest.is_symlink():
         dest.unlink()
     elif dest.exists():
@@ -127,6 +147,15 @@ def install(target: str, copy: bool, force: bool) -> bool:
 
 def install_project(directory: Path, copy: bool, force: bool) -> bool:
     print(f"Project {directory}:")
+    if inside_repository(directory):
+        sys.stdout.flush()
+        print(f"  refused: this repository is the project you pointed at. Installing it into itself\n"
+              f"          would make {directory}/.claude/skills/{NAME} a symlink to its own\n"
+              f"          ancestor, and any tool that walks skill directories from there loops\n"
+              f"          forever. Name the project you actually want the skill wired into:\n\n"
+              f"            {sys.executable} {SRC / 'scripts' / 'install.py'} project <other-project>\n",
+              file=sys.stderr)
+        return False
     ok = place(directory / ".cursor" / "skills" / NAME, copy, force)
     ok &= place(directory / ".claude" / "skills" / NAME, copy, force)
     for tool in (".cursor", ".claude"):

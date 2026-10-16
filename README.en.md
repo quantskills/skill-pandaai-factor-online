@@ -117,6 +117,14 @@ ever touching the credentials.
 | OpenClaw | read `agents/portable-loader.md` or `AGENTS.md` | portable runtime handoff |
 | One project | `python3 scripts/install.py project [DIR]` | project-local skill dirs plus an `AGENTS.md` pointer |
 
+> **`project` takes the *other* project — never this repository.** With no argument it falls back to
+> the current directory, so running `install.py project` *inside* this repository creates
+> `<repo>/.claude/skills/pandaai-factor-online -> <repo>`: a symlink pointing at its own ancestor, which
+> no recursive walk can leave. opencode v2 has been measured at ~800% CPU and 3.9 GB resident memory on
+> it until its event loop starved and the model list came back empty, with nothing in the symptom
+> pointing back here. The installer now refuses this case, but the correct usage is always to pass the
+> project you want the skill wired into — never this repository, never a directory inside it.
+
 Kimi Code, opencode, Aider, and other agents that read `AGENTS.md` pick the skill up from the
 project pointer.
 

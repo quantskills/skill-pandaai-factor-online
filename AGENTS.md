@@ -50,6 +50,18 @@ Non-negotiables when acting on this skill:
   long-short number on its own.
 - Keep the full list of candidates tested, including failures. It is the denominator of the
   multiple-testing correction.
+- **Never install this repository into itself.** `install.py project` with no directory argument
+  falls back to the current directory, and when that directory *is* this repository the installer
+  would create `<repo>/.claude/skills/pandaai-factor-online` as a symlink pointing at `<repo>` — its
+  own ancestor. That is a symlink loop no recursive walk can leave. opencode v2 has been measured at
+  ~800% CPU and 3.9 GB resident memory on it until its event loop starved, leaving the tool unusable
+  with nothing in the symptom pointing back here. The installer now refuses this case, but do not
+  rely on that guard alone: `project` takes the *other* project to wire the skill into, never this
+  repository and never a directory inside it.
+- **If an AI tool suddenly pegs the CPU while scanning skill directories, suspect a symlink pointing
+  at its own ancestor.** Find them with
+  `find "<dir>" -type l | while read l; do r=$(readlink -f "$l"); case "$l" in "$r"/*|"$r") echo "loop: $l -> $r";; esac; done`
+  and delete what it reports.
 
 ---
 
@@ -92,3 +104,12 @@ python3 scripts/install.py          # 装进本机存在的 AI 工具
   `scripts/batch.py` 批量跑。
 - 汇报因子表现时用扣除换手成本后的多头组超额收益，不要单独引用平台头条的多空数字。
 - 保留测过的全部候选清单，包括失败的。那是多重检验校正的分母。
+- **永远不要把这个仓库安装到它自己内部。** 不带目录参数时 `install.py project` 会把当前目录当作目标；
+  当这个目录**就是本仓库**时，安装器会造出 `<repo>/.claude/skills/pandaai-factor-online -> <repo>`
+  ——一条指向自己祖先的符号链接。这是一条任何递归遍历都出不去的死循环：实测 opencode v2 因此烧到约
+  800% CPU、常驻内存 3.9 GB，直到共享事件循环饿死，工具彻底不可用，而现象上完全看不出与本仓库有关。
+  安装器现在会拒绝这种情况，但不要只依赖这层守卫：`project` 只接受**别的**项目目录，
+  永远不是本仓库，也不是本仓库内部的任何目录。
+- **任何 AI 工具在扫描技能目录时突然 CPU 暴走，就先怀疑「指向自己祖先的符号链接」。** 用这句找出来：
+  `find "<目录>" -type l | while read l; do r=$(readlink -f "$l"); case "$l" in "$r"/*|"$r") echo "死循环: $l -> $r";; esac; done`
+  删掉它报出来的链接。

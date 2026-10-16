@@ -99,6 +99,12 @@ Agent 从已登录状态继续，全程不接触凭据。
 | OpenClaw | 读取 `agents/portable-loader.md` 或 `AGENTS.md` | 通用运行时交接 |
 | 单个项目 | `python3 scripts/install.py project [目录]` | 项目内的技能目录 + `AGENTS.md` 指引 |
 
+> **`project` 的目录参数必须是「别的项目」。** 不带参数时它回退到当前目录，所以在**本仓库内部**执行
+> `install.py project` 会造出 `<repo>/.claude/skills/pandaai-factor-online -> <repo>`——一条指向自己祖先的
+> 符号链接死循环，任何递归遍历都出不去（实测 opencode v2 因此烧到约 800% CPU、常驻内存 3.9 GB，
+> 直到事件循环饿死、模型列表为空，现象上完全看不出与本仓库有关）。安装器现在会拒绝这种情况，
+> 但正确的用法始终是传入你想接入技能的**那个项目**，永远不是本仓库，也不是本仓库内部的任何目录。
+
 Kimi Code、opencode、Aider 等读 `AGENTS.md` 的 Agent，通过项目内的指引识别该技能。
 
 默认软链接安装，`git pull` 一次即更新所有工具，`--copy` 则固化为快照。Windows 未开开发者模式时
